@@ -3267,32 +3267,94 @@ let todosLosProyectos = [];
             return document.getElementById('seguimiento-vista-portafolio')?.value || 'general';
         }
 
+        function obtenerSistemasPortafolioSeleccionados() {
+            const opciones = Array.from(document.querySelectorAll('#seguimiento-sistema-portafolio-opciones input[data-sistema-id]:checked'));
+            return opciones.map(input => String(input.dataset.sistemaId || '')).filter(Boolean);
+        }
+
+        function obtenerEtiquetaSistemasPortafolio() {
+            const todos = document.getElementById('seguimiento-sistema-portafolio-todos');
+            if (todos?.checked) return 'Todos los sistemas';
+
+            const seleccionados = Array.from(document.querySelectorAll('#seguimiento-sistema-portafolio-opciones input[data-sistema-id]:checked'));
+            const nombres = seleccionados.map(input => input.dataset.sistemaNombre || '').filter(Boolean);
+            if (!nombres.length) return 'Todos los sistemas';
+            if (nombres.length <= 2) return nombres.join(' + ');
+            return `${nombres.length} sistemas`;
+        }
+
+        function actualizarEtiquetaSistemasPortafolio() {
+            const label = document.getElementById('seguimiento-sistema-portafolio-label');
+            if (label) label.textContent = obtenerEtiquetaSistemasPortafolio();
+        }
+
+        function aplicarSeleccionSistemasPortafolio(proyectos) {
+            const todos = document.getElementById('seguimiento-sistema-portafolio-todos');
+            const ids = obtenerSistemasPortafolioSeleccionados();
+            if (todos?.checked || !ids.length) return proyectos;
+            return proyectos.filter(p => ids.includes(String(p.sistema_id || '')));
+        }
+
+        window.toggleSistemaPortafolioMenu = function(event) {
+            if (event) event.stopPropagation();
+            const menu = document.getElementById('seguimiento-sistema-portafolio-menu');
+            const btn = document.getElementById('seguimiento-sistema-portafolio-btn');
+            if (!menu) return;
+            const abrir = menu.classList.contains('hidden');
+            menu.classList.toggle('hidden', !abrir);
+            btn?.setAttribute('aria-expanded', String(abrir));
+        };
+
+        window.cambiarSistemasPortafolio = function(origen) {
+            const todos = document.getElementById('seguimiento-sistema-portafolio-todos');
+            const individuales = Array.from(document.querySelectorAll('#seguimiento-sistema-portafolio-opciones input[data-sistema-id]'));
+
+            if (origen?.id === 'seguimiento-sistema-portafolio-todos') {
+                if (todos?.checked) individuales.forEach(input => { input.checked = false; });
+            } else if (origen?.checked && todos) {
+                todos.checked = false;
+            }
+
+            const seleccionados = individuales.filter(input => input.checked);
+            if (!todos?.checked && seleccionados.length === 0 && todos) todos.checked = true;
+
+            actualizarEtiquetaSistemasPortafolio();
+            cambiarVistaPortafolio();
+        };
+
+        document.addEventListener('click', (event) => {
+            const wrap = document.getElementById('seguimiento-sistema-portafolio-wrap');
+            const menu = document.getElementById('seguimiento-sistema-portafolio-menu');
+            const btn = document.getElementById('seguimiento-sistema-portafolio-btn');
+            if (wrap && menu && !wrap.contains(event.target)) {
+                menu.classList.add('hidden');
+                btn?.setAttribute('aria-expanded', 'false');
+            }
+        });
+
         function obtenerProyectosDonaSeguimiento(proyectosFiltrados) {
             if (obtenerVistaPortafolioSeleccionada() === 'sprint') {
-                return proyectosFiltrados;
+                return aplicarSeleccionSistemasPortafolio(proyectosFiltrados);
             }
 
             // En "Portafolio general" la dona conserva la vista global respecto al Sprint,
-            // pero debe respetar los filtros maestros de Estatus y Sistema del encabezado.
+            // respeta Estatus y permite combinar uno o varios sistemas.
             const estatus = document.getElementById('seguimiento-filtro-estatus')?.value || '';
-            // Filtro independiente: la dona histórica no depende del sistema del sprint.
-            const sistema = document.getElementById('seguimiento-sistema-portafolio')?.value || '';
-
-            return (todosLosProyectos || []).filter(p => {
-                const okEstatus = !estatus || normalizarTexto(p.estatus || 'BACKLOG') === estatus;
-                const okSistema = !sistema || String(p.sistema_id || '') === String(sistema);
-                return okEstatus && okSistema;
+            const base = (todosLosProyectos || []).filter(p => {
+                return !estatus || normalizarTexto(p.estatus || 'BACKLOG') === estatus;
             });
+            return aplicarSeleccionSistemasPortafolio(base);
         }
 
         function actualizarTextosVistaPortafolio(proyectosDona) {
             const vista = obtenerVistaPortafolioSeleccionada();
             const titulo = document.getElementById('titulo-distribucion-portafolio');
+            const sistemas = obtenerEtiquetaSistemasPortafolio();
             if (vista === 'sprint') {
                 const sprint = obtenerNombreSprintSeleccionado();
-                if (titulo) titulo.textContent = `Distribución del Sprint - ${sprint}`;
+                if (titulo) titulo.textContent = `Distribución del Sprint - ${sprint} · ${sistemas}`;
             } else if (titulo) {
-                titulo.textContent = 'Distribución general del portafolio · ' + (document.getElementById('seguimiento-sistema-portafolio')?.selectedOptions?.[0]?.textContent || 'Todos los sistemas');
+                titulo.textContent = `Distribución general del portafolio · ${sistemas}`;
             }
         }
 
@@ -3326,50 +3388,51 @@ let todosLosProyectos = [];
             crearGraficaSeguimiento('seguimiento-chart-portafolio', 'doughnut', labels, data, 'Portafolio');
         }
 
+        // V3.3.41: vistas exclusivamente visuales; no alteran la lógica del avance.
+        window.cambiarVistaRoadmapPMO = function(vista) {
+            if (!['timeline','chevrons','tiles'].includes(vista)) return;
+            const panel = document.getElementById('reporte-mapa-requerimientos');
+            if (!panel) return;
+            panel.setAttribute('data-roadmap-view', vista);
+            panel.querySelectorAll('[data-roadmap-view].pmo-view-btn').forEach(btn => {
+                btn.setAttribute('aria-pressed', String(btn.dataset.roadmapView === vista));
+            });
+            try { localStorage.setItem('orbita-roadmap-view-v3341', vista); } catch (e) {}
+        };
+        function iniciarVistaRoadmapPMO() {
+            let vista = 'chevrons';
+            try { vista = localStorage.getItem('orbita-roadmap-view-v3341') || vista; } catch (e) {}
+            window.cambiarVistaRoadmapPMO(vista);
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciarVistaRoadmapPMO);
+        else iniciarVistaRoadmapPMO();
+
+        // V3.3.40: roadmap de flechas compacto (11 etapas visibles en escritorio).
         function renderizarLineaFases(p) {
             const actual = indiceFaseSeguimiento(p);
-            const progreso = Math.max(0, Math.min(100, (actual / (fasesSeguimientoEjecutivo.length - 1)) * 100));
-
             return `
-                <div class="mt-7 overflow-x-auto pb-2">
-                    <div class="relative min-w-[1120px] px-2 py-2">
-                        <div class="absolute left-8 right-8 top-[38px] h-1.5 rounded-full bg-slate-200/80 shadow-inner"></div>
-                        <div class="absolute left-8 top-[38px] h-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all shadow-sm" style="width: ${progreso}%; max-width: calc(100% - 4rem);"></div>
-                        <div class="grid grid-cols-11 gap-2 relative z-10">
-                            ${fasesSeguimientoEjecutivo.map((fase, idx) => {
-                                const completada = idx < actual;
-                                const actualFase = idx === actual;
-                                const pendiente = idx > actual;
-                                const circuloClase = actualFase
-                                    ? 'bg-blue-600 text-white ring-4 ring-blue-100 scale-110 shadow-lg shadow-blue-200/70'
-                                    : completada
-                                        ? 'bg-emerald-500 text-white shadow-md shadow-emerald-100'
-                                        : 'bg-slate-100 text-slate-400';
-                                const textoClase = actualFase ? 'text-blue-700' : completada ? 'text-slate-700' : 'text-slate-400';
-                                const checkClase = actualFase ? 'bg-blue-600 text-white' : completada ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400';
-                                const fechas = fechasFaseSeguimiento(p, fase.key);
-
-                                return `
-                                    <div class="text-center">
-                                        <div class="h-[74px] flex flex-col items-center justify-start">
-                                            <div class="w-14 h-14 rounded-full ${circuloClase} flex items-center justify-center text-2xl transition relative">
-                                                ${actualFase ? '<span class="inline-block" style="transform:scaleX(-1);">🚙</span>' : `<span>${fase.icono}</span>`}
-                                            </div>
-                                            <div class="mt-2 w-5 h-5 rounded-full ${checkClase} flex items-center justify-center text-[11px] font-black">${(completada || actualFase) ? '✓' : ''}</div>
-                                        </div>
-                                        <div class="mt-3 min-h-[54px] flex items-start justify-center">
-                                            <p class="text-[10px] md:text-[11px] font-black uppercase leading-tight whitespace-pre-line ${textoClase}">${fase.label}</p>
-                                        </div>
-                                        <div class="mt-1 min-h-[30px] text-[9px] md:text-[10px] font-black leading-tight text-slate-500">
-                                            ${fechas || '&nbsp;'}
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
+                <div class="pmo-chevron-scroll overflow-x-auto" aria-label="Roadmap de 11 etapas">
+                    <div class="pmo-chevron-track">
+                        ${fasesSeguimientoEjecutivo.map((fase, idx) => {
+                            const completada = idx < actual;
+                            const activa = idx === actual;
+                            const estado = activa ? 'active' : completada ? 'done' : 'pending';
+                            const fechas = fechasFaseSeguimiento(p, fase.key);
+                            const nombre = fase.label.replace(/^\d+\.\s*/, '');
+                            return `
+                                <div class="pmo-chevron-step ${estado}" aria-label="Etapa ${idx + 1}: ${escaparHtmlPMO(fase.corto)}">
+                                    <span class="pmo-chevron-number">${idx + 1}</span>
+                                    <span class="pmo-chevron-icon" aria-hidden="true">${fase.icono}</span>
+                                    <span class="pmo-chevron-title">${escaparHtmlPMO(nombre)}</span>
+                                    <span class="pmo-chevron-date">${fechas || '&nbsp;'}</span>
+                                    <span class="pmo-chevron-status">
+                                        <span aria-hidden="true">${completada ? '✓' : activa ? '●' : '○'}</span>
+                                        ${completada ? 'Completado' : activa ? 'En proceso' : 'Pendiente'}
+                                    </span>
+                                </div>`;
+                        }).join('')}
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         function renderizarTarjetaSeguimiento(p) {
@@ -3839,14 +3902,32 @@ let todosLosProyectos = [];
                 sistema.innerHTML = '<option class="text-slate-800" value="">Todos los sistemas</option>' +
                     (cats.sistemas || []).map(s => `<option class="text-slate-800" value="${s.id}">${escaparHtmlPMO(s.nombre)}</option>`).join('');
             }
-            const sistemaPortafolio = document.getElementById('seguimiento-sistema-portafolio');
-            if (sistemaPortafolio) {
-                const anterior = sistemaPortafolio.value;
-                sistemaPortafolio.innerHTML = '<option value="">Todos los sistemas</option>' +
-                    (cats.sistemas || []).map(s => `<option value="${s.id}">${escaparHtmlPMO(s.nombre)}</option>`).join('');
-                // Génesis es el alcance preferido del portafolio semanal; no limita el sprint.
-                const genesis = (cats.sistemas || []).find(s => normalizarTexto(s.nombre) === 'GENESIS');
-                sistemaPortafolio.value = anterior || genesis?.id || '';
+            const opcionesPortafolio = document.getElementById('seguimiento-sistema-portafolio-opciones');
+            const todosPortafolio = document.getElementById('seguimiento-sistema-portafolio-todos');
+            if (opcionesPortafolio) {
+                const seleccionPrev = new Set(obtenerSistemasPortafolioSeleccionados());
+                opcionesPortafolio.innerHTML = (cats.sistemas || []).map(s => `
+                    <label class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-50 cursor-pointer text-xs font-bold text-slate-700">
+                        <input type="checkbox" data-sistema-id="${s.id}" data-sistema-nombre="${escaparHtmlPMO(s.nombre)}" onchange="cambiarSistemasPortafolio(this)" class="w-4 h-4 rounded border-slate-300 text-blue-600">
+                        <span>${escaparHtmlPMO(s.nombre)}</span>
+                    </label>`).join('');
+
+                const inputs = Array.from(opcionesPortafolio.querySelectorAll('input[data-sistema-id]'));
+                if (seleccionPrev.size) {
+                    inputs.forEach(input => { input.checked = seleccionPrev.has(String(input.dataset.sistemaId)); });
+                    if (todosPortafolio) todosPortafolio.checked = !inputs.some(input => input.checked);
+                } else {
+                    // Génesis sigue siendo la vista inicial preferida; el usuario puede sumar SIAFA u otros.
+                    const genesis = (cats.sistemas || []).find(s => normalizarTexto(s.nombre) === 'GENESIS');
+                    const genesisInput = inputs.find(input => String(input.dataset.sistemaId) === String(genesis?.id || ''));
+                    if (genesisInput) {
+                        genesisInput.checked = true;
+                        if (todosPortafolio) todosPortafolio.checked = false;
+                    } else if (todosPortafolio) {
+                        todosPortafolio.checked = true;
+                    }
+                }
+                actualizarEtiquetaSistemasPortafolio();
             }
         }
 

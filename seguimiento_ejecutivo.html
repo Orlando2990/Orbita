@@ -62,7 +62,7 @@
     <link rel="stylesheet" href="css/pmo-layout.css">
 
 <style id="pmo-roadmap-v3275">
-/* V3.2.75 — Roadmap Ejecutivo. Cambios exclusivamente visuales. */
+/* V3.3.39 — Roadmap Ejecutivo con flechas. Cambios exclusivamente visuales. */
 #reporte-mapa-requerimientos{
   position:relative;overflow:hidden;
   border:1px solid #dbe4ef!important;
@@ -134,6 +134,121 @@
  #reporte-mapa-requerimientos{border-radius:22px!important}
  #reporte-mapa-requerimientos .roadmap-executive-footer{flex-direction:column;align-items:flex-start}
 }
+</style>
+
+<style id="pmo-roadmap-chevron-v3340">
+/* 3.3.40 - Roadmap compacto: 11 pasos visibles en el ancho del reporte. */
+#reporte-mapa-requerimientos #seguimiento-lista>.pmo-follow-card{position:relative;overflow:hidden}
+#reporte-mapa-requerimientos .pmo-follow-card>.pmo-follow-accent{position:absolute;inset:0 auto 0 0;width:6px;height:auto;z-index:2}
+#reporte-mapa-requerimientos .pmo-follow-card>.p-5{padding-left:19px!important;padding-right:14px!important;padding-top:14px!important;padding-bottom:14px!important}
+#reporte-mapa-requerimientos #seguimiento-lista{gap:12px!important}
+#reporte-mapa-requerimientos .pmo-follow-card .pmo-chevron-scroll{
+  overflow-x:visible!important;overflow-y:visible!important;width:100%;max-width:100%;
+  margin-top:11px!important;padding:11px 0 0!important;border-top:1px solid #edf2f7!important;
+}
+#reporte-mapa-requerimientos .pmo-chevron-track{
+ display:grid;grid-template-columns:repeat(11,minmax(0,1fr));min-width:0!important;
+ gap:2px;padding:2px 0 1px;width:100%;box-sizing:border-box;
+}
+#reporte-mapa-requerimientos .pmo-chevron-step{
+ --step-bg:#f4f6f9;--step-fg:#64748b;--step-accent:#cbd5e1;
+ position:relative;min-width:0;min-height:137px;display:flex;align-items:center;
+ flex-direction:column;gap:0;padding:6px 4px 5px 7px;
+ background:var(--step-bg);color:var(--step-fg);
+ clip-path:polygon(0 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,0 100%,7px 50%);
+ text-align:center;
+}
+#reporte-mapa-requerimientos .pmo-chevron-step:first-child{
+ clip-path:polygon(0 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,0 100%);padding-left:3px;
+}
+#reporte-mapa-requerimientos .pmo-chevron-step.done{--step-bg:#e5f9ef;--step-fg:#065f46;--step-accent:#10b981}
+#reporte-mapa-requerimientos .pmo-chevron-step.active{--step-bg:#e4efff;--step-fg:#1d4ed8;--step-accent:#2563eb}
+#reporte-mapa-requerimientos .pmo-chevron-number{
+ align-self:flex-start;background:var(--step-accent);color:#fff;border-radius:999px;
+ min-width:17px;height:17px;padding:0 3px;display:inline-flex;align-items:center;justify-content:center;
+ font-size:9px;font-weight:900;line-height:1;
+}
+#reporte-mapa-requerimientos .pmo-chevron-step.pending .pmo-chevron-number{color:#475569}
+#reporte-mapa-requerimientos .pmo-chevron-icon{font-size:17px;line-height:22px;margin-top:2px}
+#reporte-mapa-requerimientos .pmo-chevron-title{
+ font-size:clamp(7px,.65vw,9px);line-height:1.12;font-weight:900;text-transform:uppercase;
+ white-space:normal;overflow-wrap:normal;word-break:normal;hyphens:auto;
+ min-height:37px;display:flex;align-items:center;justify-content:center;
+}
+#reporte-mapa-requerimientos .pmo-chevron-date{
+ display:block;margin-top:auto;min-height:26px;font-size:clamp(7px,.61vw,9px);
+ line-height:1.17;font-weight:750;color:#475569;white-space:normal;
+}
+#reporte-mapa-requerimientos .pmo-chevron-status{
+ width:100%;min-height:19px;display:flex;align-items:center;justify-content:center;
+ margin-top:2px;gap:2px;border-radius:7px;background:rgba(255,255,255,.6);
+ font-size:clamp(7px,.57vw,9px);font-weight:800;white-space:nowrap;letter-spacing:-.2px;
+}
+#reporte-mapa-requerimientos .pmo-chevron-step.active .pmo-chevron-status{background:#c9ddff}
+#reporte-mapa-requerimientos .pmo-chevron-step.done .pmo-chevron-status{background:#ccf5df}
+@media(min-width:1500px){
+ #reporte-mapa-requerimientos .pmo-chevron-step{min-height:146px;padding:8px 6px 6px 9px}
+ #reporte-mapa-requerimientos .pmo-chevron-icon{font-size:19px;line-height:25px}
+ #reporte-mapa-requerimientos .pmo-chevron-title{min-height:42px}
+}
+@media(max-width:1100px){
+ #reporte-mapa-requerimientos .pmo-chevron-step{padding-left:5px;padding-right:2px;min-height:140px}
+ #reporte-mapa-requerimientos .pmo-chevron-title{font-size:7px}
+ #reporte-mapa-requerimientos .pmo-chevron-date{font-size:7px}
+ #reporte-mapa-requerimientos .pmo-chevron-status{font-size:7px}
+}
+@media(max-width:650px){
+ #reporte-mapa-requerimientos .pmo-follow-card .pmo-chevron-scroll{overflow-x:auto!important}
+ #reporte-mapa-requerimientos .pmo-chevron-track{min-width:850px!important}
+}
+</style>
+
+
+<style id="pmo-views-v3341">
+/* Comparador de vistas: mismas fechas, etapas, métricas y reglas; solo cambia presentación. */
+#reporte-mapa-requerimientos{--pmo-step-gap:3px}
+#reporte-mapa-requerimientos .pmo-view-switch{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:5px;margin:-6px 0 12px}
+#reporte-mapa-requerimientos .pmo-view-switch-label{font-size:11px;font-weight:850;color:#64748b;margin-right:8px}
+#reporte-mapa-requerimientos .pmo-view-btn{border:1px solid #dbe4ee;border-radius:9px;padding:7px 11px;font-weight:850;font-size:11px;background:#f8fafc;color:#475569;cursor:pointer}
+#reporte-mapa-requerimientos .pmo-view-btn[aria-pressed="true"]{background:#2563eb;color:white;border-color:#2563eb;box-shadow:0 3px 9px #2563eb20}
+#reporte-mapa-requerimientos #seguimiento-lista{gap:10px!important}
+#reporte-mapa-requerimientos .pmo-follow-card>.p-5{padding:11px 12px 12px 18px!important}
+#reporte-mapa-requerimientos .pmo-follow-card>.p-5>div:first-child{gap:9px!important}
+#reporte-mapa-requerimientos .pmo-follow-card h4{font-size:15px!important;line-height:1.25!important}
+#reporte-mapa-requerimientos .pmo-follow-card button.group\/seguimiento-rqm{margin-top:6px!important}
+#reporte-mapa-requerimientos .pmo-follow-card p.text-xs{margin-top:3px!important}
+#reporte-mapa-requerimientos .pmo-follow-card .flex.gap-2.flex-wrap.mt-3{margin-top:6px!important}
+#reporte-mapa-requerimientos .pmo-metric-state{min-width:88px!important;padding:8px 10px!important;border-radius:13px!important}
+#reporte-mapa-requerimientos .pmo-chevron-scroll{margin-top:10px!important;padding-top:9px!important;overflow-x:visible!important}
+#reporte-mapa-requerimientos .pmo-chevron-track{display:grid!important;grid-template-columns:repeat(11,minmax(0,1fr))!important;gap:var(--pmo-step-gap)!important;min-width:0!important;width:100%!important;align-items:stretch}
+#reporte-mapa-requerimientos .pmo-chevron-step{min-height:122px!important;padding:5px 4px 5px 6px!important;min-width:0!important}
+#reporte-mapa-requerimientos .pmo-chevron-number{min-width:17px;height:17px}
+#reporte-mapa-requerimientos .pmo-chevron-icon{font-size:16px!important;line-height:22px!important;margin-top:1px!important}
+#reporte-mapa-requerimientos .pmo-chevron-title{font-size:clamp(7px,.64vw,10px)!important;line-height:1.16!important;min-height:34px!important;word-break:normal;hyphens:auto}
+#reporte-mapa-requerimientos .pmo-chevron-date{font-size:clamp(7px,.64vw,9px)!important;line-height:1.1!important;min-height:23px!important}
+#reporte-mapa-requerimientos .pmo-chevron-status{min-height:18px!important;font-size:clamp(7px,.56vw,9px)!important}
+/* Opcion 1 — linea de tiempo: circulos enlazados, fechas y estatus alineados */
+#reporte-mapa-requerimientos[data-roadmap-view="timeline"] .pmo-chevron-track{gap:2px!important;position:relative}
+#reporte-mapa-requerimientos[data-roadmap-view="timeline"] .pmo-chevron-track:before{content:"";position:absolute;z-index:0;top:38px;left:4%;right:4%;height:3px;background:#dce6ef}
+#reporte-mapa-requerimientos[data-roadmap-view="timeline"] .pmo-chevron-step{clip-path:none!important;background:transparent!important;min-height:125px!important;z-index:1;padding:3px 2px!important}
+#reporte-mapa-requerimientos[data-roadmap-view="timeline"] .pmo-chevron-number{align-self:center;margin-bottom:3px}
+#reporte-mapa-requerimientos[data-roadmap-view="timeline"] .pmo-chevron-icon{width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:3px solid #fff;box-shadow:0 2px 9px #0f172a20;margin-top:0!important}
+#reporte-mapa-requerimientos[data-roadmap-view="timeline"] .pmo-chevron-step.done .pmo-chevron-icon{background:#10b981}
+#reporte-mapa-requerimientos[data-roadmap-view="timeline"] .pmo-chevron-step.active .pmo-chevron-icon{background:#2563eb}
+#reporte-mapa-requerimientos[data-roadmap-view="timeline"] .pmo-chevron-title{min-height:38px!important}
+#reporte-mapa-requerimientos[data-roadmap-view="timeline"] .pmo-chevron-status{border-radius:8px}
+/* Opcion 2 — flechas suaves como el boceto */
+#reporte-mapa-requerimientos[data-roadmap-view="chevrons"] .pmo-chevron-step{clip-path:polygon(0 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,0 100%,7px 50%)!important;min-height:124px!important}
+#reporte-mapa-requerimientos[data-roadmap-view="chevrons"] .pmo-chevron-step:first-child{clip-path:polygon(0 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,0 100%)!important}
+/* Opcion 3 — tarjetas individuales discretas, sin encabezados azul oscuro */
+#reporte-mapa-requerimientos[data-roadmap-view="tiles"] .pmo-chevron-track{gap:3px!important}
+#reporte-mapa-requerimientos[data-roadmap-view="tiles"] .pmo-chevron-step{clip-path:none!important;background:#fff!important;border:1px solid #e4eaf1;border-top:3px solid #cbd5e1;border-radius:8px;min-height:126px!important}
+#reporte-mapa-requerimientos[data-roadmap-view="tiles"] .pmo-chevron-step.done{border-top-color:#10b981}
+#reporte-mapa-requerimientos[data-roadmap-view="tiles"] .pmo-chevron-step.active{border-top-color:#2563eb;background:#eff6ff!important}
+#reporte-mapa-requerimientos[data-roadmap-view="tiles"] .pmo-chevron-number{align-self:center}
+#reporte-mapa-requerimientos[data-roadmap-view="tiles"] .pmo-chevron-icon{background:#f1f5f9;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+@media(max-width:760px){#reporte-mapa-requerimientos .pmo-chevron-scroll{overflow-x:auto!important}#reporte-mapa-requerimientos .pmo-chevron-track{min-width:880px!important}#reporte-mapa-requerimientos .pmo-view-switch{justify-content:flex-start}}
+@media print{#reporte-mapa-requerimientos .pmo-view-switch{display:none!important}}
 </style>
 
 <style id="pmo-compilado-v3276">
@@ -216,6 +331,12 @@
                     </div>
                 </div>
 
+                <div class="pmo-view-switch no-export" role="group" aria-label="Elegir diseño del roadmap">
+                    <span class="pmo-view-switch-label">Vista del roadmap</span>
+                    <button type="button" class="pmo-view-btn" data-roadmap-view="timeline" onclick="cambiarVistaRoadmapPMO('timeline')">1 · Línea de tiempo</button>
+                    <button type="button" class="pmo-view-btn" data-roadmap-view="chevrons" onclick="cambiarVistaRoadmapPMO('chevrons')">2 · Flechas</button>
+                    <button type="button" class="pmo-view-btn" data-roadmap-view="tiles" onclick="cambiarVistaRoadmapPMO('tiles')">3 · Tarjetas</button>
+                </div>
                 <div id="seguimiento-lista" class="space-y-4"></div>
                 <div class="roadmap-executive-footer justify-end"><span id="roadmap-corte-semanal">Seguimiento semanal</span></div>
             </div>
@@ -254,11 +375,22 @@
                             <p class="text-xs font-semibold text-slate-500 mt-1.5">Composición actual por estatus operativo</p>
                         </div>
                         <div class="flex items-center gap-2 no-export">
-                            <label for="seguimiento-sistema-portafolio" class="sr-only">Sistema del portafolio</label>
-                            <select id="seguimiento-sistema-portafolio" onchange="cambiarVistaPortafolio()" aria-label="Filtrar sistema del portafolio"
-                                class="bg-white border border-slate-200 text-slate-700 rounded-xl px-3 py-2 text-xs font-black outline-none focus:border-blue-400">
-                                <option value="">Todos los sistemas</option>
-                            </select>
+                            <div id="seguimiento-sistema-portafolio-wrap" class="relative">
+                                <button id="seguimiento-sistema-portafolio-btn" type="button" onclick="toggleSistemaPortafolioMenu(event)"
+                                    aria-haspopup="true" aria-expanded="false" aria-label="Filtrar sistemas del portafolio"
+                                    class="min-w-[150px] bg-white border border-slate-200 text-slate-700 rounded-xl px-3 py-2 text-xs font-black outline-none hover:border-blue-300 focus:border-blue-400 flex items-center justify-between gap-3">
+                                    <span id="seguimiento-sistema-portafolio-label">Génesis</span>
+                                    <span class="text-slate-400 text-[10px]">▼</span>
+                                </button>
+                                <div id="seguimiento-sistema-portafolio-menu" class="hidden absolute right-0 z-50 mt-2 w-56 rounded-2xl border border-slate-200 bg-white shadow-xl p-2">
+                                    <label class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-50 cursor-pointer text-xs font-bold text-slate-700">
+                                        <input id="seguimiento-sistema-portafolio-todos" type="checkbox" onchange="cambiarSistemasPortafolio(this)" class="w-4 h-4 rounded border-slate-300 text-blue-600">
+                                        <span>Todos los sistemas</span>
+                                    </label>
+                                    <div class="h-px bg-slate-100 my-1"></div>
+                                    <div id="seguimiento-sistema-portafolio-opciones"></div>
+                                </div>
+                            </div>
                             <select id="seguimiento-vista-portafolio" onchange="cambiarVistaPortafolio()"
                                 class="bg-white border border-slate-200 text-slate-700 rounded-xl px-3 py-2 text-xs font-black outline-none focus:border-emerald-400">
                                 <option value="general">Portafolio general</option>

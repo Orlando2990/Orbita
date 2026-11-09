@@ -1,4 +1,4 @@
-/* PMO Control V3.2.83 — Cierre de Sprint
+/* ORBITA V3.3.42 — Cierre de Sprint
    Implementación deliberadamente aislada para no alterar navegación, cargas ni transiciones. */
 (() => {
   const OWNER_EMAIL = 'p.castillo@finsus.mx';
@@ -112,7 +112,8 @@
       const unified=group.find(x=>String(x.sistema_id)===UNIFIED_ID && !x.reabierto);
       const legacy=group.filter(x=>String(x.sistema_id)!==UNIFIED_ID && !x.reabierto);
       const snap=unified?.snapshot || mergedSnapshot(legacy.map(x=>x.snapshot||{}));
-      const status=unified?'Cierre mensual único':`Histórico anterior · ${legacy.length} sistema(s)`;
+      const recovered=String(snap?._meta?.tipo||'')==='RECUPERADO';
+      const status=recovered?'Cierre recuperado':unified?'Cierre mensual único':`Histórico anterior · ${legacy.length} sistema(s)`;
       return `<div class="rounded-xl bg-slate-50 border border-slate-100 p-3 flex flex-wrap justify-between gap-2 items-center"><div><p class="text-sm font-black">${esc(first.sprint_nombre)} ${esc(first.anio)}</p><p class="text-[11px] text-slate-500">${esc(status)} · ${snap.atendidos} RQM</p></div><button type="button" onclick="PMOSprintClose.viewCombined('${esc(String(first.sprint_id))}')" class="border border-slate-200 rounded-lg bg-white px-3 py-2 text-xs font-black">Ver fotografía</button></div>`;
     }).join('');
   }
@@ -128,7 +129,8 @@
       alert('Esta fotografía anterior no incluye la identificación por sistema en todos sus registros. Selecciona Todos los sistemas para consultarla completa.');return;
     }
     const view=filter.id==='all'?snap:unified?filterSnapshot(snap,filter):mergedSnapshot(legacy.filter(x=>String(x.sistema_id)===String(filter.id)).map(x=>x.snapshot||{}));
-    modal(view,`Cierre de Sprint · ${src.sprint_nombre} ${src.anio}`,unified?'Fotografía mensual única · vista histórica':'Histórico anterior por sistema · sin alterar',true);
+    const recovered=String(snap?._meta?.tipo||'')==='RECUPERADO';
+    modal(view,`Cierre de Sprint · ${src.sprint_nombre} ${src.anio}`,recovered?'Cierre recuperado · reconstrucción retrospectiva':unified?'Fotografía mensual única · vista histórica':'Histórico anterior por sistema · sin alterar',true);
   }
   function activeSprint(){
     if(typeof cats==='undefined' || !Array.isArray(cats?.sprints)) return null;
@@ -138,6 +140,134 @@
     return cats.sprints.find(s=>norm(s.nombre)===norm(name) && Number(s.anio||0)===year) || null;
   }
   function sprintLabel(s){ return s ? `${String(s.nombre||'').trim()}${s.anio ? ' '+s.anio : ''}` : 'Sprint'; }
+  function sprintMonthIndex(s){ return MONTHS.findIndex(m=>norm(m)===norm(s?.nombre)); }
+  function calendarSprint(year,monthIndex){
+    if(typeof cats==='undefined' || !Array.isArray(cats?.sprints)) return null;
+    return cats.sprints.find(s=>sprintMonthIndex(s)===monthIndex && Number(s.anio||0)===Number(year)) || null;
+  }
+  function previousCalendarSprint(){
+    const now=new Date();
+    const d=new Date(now.getFullYear(),now.getMonth()-1,1);
+    return calendarSprint(d.getFullYear(),d.getMonth());
+  }
+  function closureRowsForSprint(sprint){
+    if(!sprint) return [];
+    return combinedClosures.filter(x=>String(x.sprint_id)===String(sprint.id));
+  }
+  function hasHistoricalClosure(sprint){
+    const rows=closureRowsForSprint(sprint);
+    if(!rows.length) return false;
+    const unified=rows.find(x=>String(x.sistema_id)===UNIFIED_ID);
+    if(unified) return true; // incluso reabierto: existe fotografía preservada y no es un periodo perdido
+    return rows.some(x=>!x.reabierto); // cierres heredados por sistema
+  }
+  function pendingPreviousSprint(){
+    const active=activeSprint();
+    if(!active) return null;
+    const activeKey=Number(active.anio||0)*12+sprintMonthIndex(active);
+    const candidates=(cats?.sprints||[])
+      .filter(s=>sprintMonthIndex(s)>=0 && (Number(s.anio||0)*12+sprintMonthIndex(s))<activeKey)
+      .sort((a,b)=>(Number(a.anio||0)*12+sprintMonthIndex(a))-(Number(b.anio||0)*12+sprintMonthIndex(b)));
+    if(!candidates.length) return null;
+    const closed=candidates.filter(hasHistoricalClosure);
+    if(!closed.length){
+      const prev=previousCalendarSprint();
+      return prev && !hasHistoricalClosure(prev) ? prev : null;
+    }
+    const lastClosed=closed[closed.length-1];
+    const lastKey=Number(lastClosed.anio||0)*12+sprintMonthIndex(lastClosed);
+    return candidates.find(s=>{
+      const key=Number(s.anio||0)*12+sprintMonthIndex(s);
+      return key>lastKey && !hasHistoricalClosure(s);
+    }) || null;
+  }
+  function sprintCutoffISO(sprint){
+    const idx=sprintMonthIndex(sprint);
+    if(idx<0) return null;
+    const d=new Date(Number(sprint.anio||new Date().getFullYear()),idx+1,0);
+    const yyyy=d.getFullYear(); const mm=String(d.getMonth()+1).padStart(2,'0'); const dd=String(d.getDate()).padStart(2,'0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  function dateOnOrBefore(value,cutoff){
+    if(!value||!cutoff) return false;
+    const v=String(value).slice(0,10);
+    return /^\d{4}-\d{2}-\d{2}$/.test(v) && v<=cutoff;
+  }
+  function priorSprintOf(sprint){
+    const idx=sprintMonthIndex(sprint); if(idx<0) return null;
+    const d=new Date(Number(sprint.anio||new Date().getFullYear()),idx-1,1);
+    return calendarSprint(d.getFullYear(),d.getMonth());
+  }
+  function historicalSnapshotFor(sprint){
+    const rows=closureRowsForSprint(sprint).filter(x=>!x.reabierto);
+    if(!rows.length) return null;
+    const unified=rows.find(x=>String(x.sistema_id)===UNIFIED_ID);
+    return unified?.snapshot || mergedSnapshot(rows.filter(x=>String(x.sistema_id)!==UNIFIED_ID).map(x=>x.snapshot||{}));
+  }
+  function recoveryStatus(p,priorItem,cutoff){
+    if(p){
+      // Reconstrucción retrospectiva basada en hitos REALES del roadmap.
+      // No usamos fechas compromiso (fecha_desarrollo / fecha_qa / fecha_uat),
+      // porque podrían adelantar artificialmente la fase al momento del corte.
+      if(dateOnOrBefore(p.fecha_liberacion_prod,cutoff)) return {estatus:'LIBERADO',confianza:'alta'};
+
+      // UAT inicia cuando existe evidencia real de entrada/salida de UAT.
+      if(dateOnOrBefore(p.fecha_inicio_uat,cutoff)||dateOnOrBefore(p.fecha_fin_uat,cutoff))
+        return {estatus:'UAT',confianza:'alta'};
+
+      // En el roadmap de Órbita, QA agrupa "Instalación QA" + "Certificación QA".
+      // La instalación QA se representa con fecha_fin_desarrollo; por eso, una vez
+      // concluido Desarrollo al corte, el RQM ya pertenece operativamente a QA.
+      if(dateOnOrBefore(p.fecha_inicio_qa,cutoff)||dateOnOrBefore(p.fecha_fin_qa,cutoff)||dateOnOrBefore(p.fecha_fin_desarrollo,cutoff))
+        return {estatus:'QA',confianza:'alta'};
+
+      if(dateOnOrBefore(p.fecha_inicio_desarrollo,cutoff))
+        return {estatus:'DESARROLLO',confianza:'alta'};
+    }
+    if(priorItem?.estatus) return {estatus:priorItem.estatus,confianza:'media'};
+    const current=projectStatus(p||{});
+    if(current==='BACKLOG'||current==='ANALISIS') return {estatus:current,confianza:'media'};
+    return {estatus:'ANALISIS',confianza:'baja'};
+  }
+  function recoverySnapshot(sprint){
+    const all=(typeof todosLosProyectos!=='undefined' ? todosLosProyectos : []);
+    const cutoff=sprintCutoffISO(sprint);
+    const prior=priorSprintOf(sprint);
+    const priorSnap=historicalSnapshotFor(prior);
+    const priorPending=(priorSnap?.items||[]).filter(x=>norm(x.estatus)!=='LIBERADO'&&norm(x.estatus)!=='CANCELADO');
+    const currentById=new Map(all.map(p=>[String(p.id||''),p]));
+    const candidates=new Map();
+    for(const p of all){
+      if(String(p.sprint_id||'')===String(sprint.id) || String(p.sprint_actual_id||'')===String(sprint.id)) candidates.set(String(p.id||''),{p,priorItem:null});
+    }
+    for(const old of priorPending){
+      const id=String(old.id||''); if(!id) continue;
+      const current=currentById.get(id)||null;
+      const existing=candidates.get(id)||{};
+      candidates.set(id,{p:existing.p||current,priorItem:old});
+    }
+    const detail=[]; let lowConfidence=0;
+    for(const {p,priorItem} of candidates.values()){
+      const base=p||priorItem; if(!base) continue;
+      const st=recoveryStatus(p,priorItem,cutoff); if(st.confianza==='baja') lowConfidence++;
+      const sistemaId=String(p?.sistema_id||priorItem?.sistema_id||'');
+      detail.push({
+        id:String(p?.id||priorItem?.id||''), id_req:p?.id_req||priorItem?.id_req||'', nombre:p?.nombre_rqm||priorItem?.nombre||'Sin nombre',
+        estatus:st.estatus, avance:PROGRESS[norm(st.estatus)]??0,
+        sprint_origen:p?.cat_sprints?sprintLabel(p.cat_sprints):(priorItem?.sprint_origen||''), sprint_actual:sprintLabel(sprint),
+        tipo_incorporacion:p?.tipo_incorporacion||priorItem?.tipo_incorporacion||'PLANEADO', sistema_id:sistemaId,
+        sistema_nombre:p?.cat_sistemas?.nombre||p?.sistema||priorItem?.sistema_nombre||'',
+        es_arrastre:Boolean(priorItem)||String(p?.sprint_id||'')!==String(sprint.id), recuperacion_confianza:st.confianza
+      });
+    }
+    const snap=summaryFromItems(detail);
+    snap._meta={tipo:'RECUPERADO',fecha_corte:cutoff,generado_en:new Date().toISOString(),metodo:'Cierre retrospectivo estimado con fotografía previa, Sprint de origen y fechas de fase disponibles.',advertencia:'No equivale a una fotografía tomada en la fecha de corte; revisar antes de guardar.',baja_confianza:lowConfidence};
+    return snap;
+  }
+  function pendingBanner(pending){
+    if(!pending) return '';
+    return `<div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4"><div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3"><div><p class="text-[10px] uppercase font-black text-amber-700">Cierre pendiente detectado</p><h4 class="text-base font-black text-slate-900 mt-1">${esc(sprintLabel(pending))} no tiene fotografía histórica</h4><p class="text-xs text-slate-600 mt-1">Órbita cambió al mes actual sin cerrar este periodo. Puedes revisar una reconstrucción antes de guardarla como cierre recuperado.</p></div><div class="flex gap-2 flex-wrap"><button type="button" onclick="PMOSprintClose.previewPending('${esc(String(pending.id))}')" class="px-3 py-2 rounded-xl bg-white border border-amber-200 text-xs font-black text-amber-800">Revisar reconstrucción</button>${canManage()?`<button type="button" onclick="PMOSprintClose.closePending('${esc(String(pending.id))}')" class="px-3 py-2 rounded-xl bg-amber-600 text-white text-xs font-black">Generar cierre recuperado</button>`:''}</div></div></div>`;
+  }
   function projectCurrentSprintId(p){ return String(p.sprint_actual_id || p.sprint_id || ''); }
   function projectStatus(p){ return norm(p.estatus || p.cat_estatus?.nombre || 'BACKLOG'); }
   function outOfPlan(p){ return norm(p.tipo_incorporacion)==='NO_PLANEADO' || norm(p.tipo_incorporacion)==='URGENTE'; }
@@ -218,15 +348,16 @@
     const load=await loadCombinedClosures();
     if(load.error){box.innerHTML=`<div class="p-5 text-rose-700">No se pudo consultar el historial: ${esc(load.error.message)}</div>`;return;}
     const system=scopedSystem();
+    const pending=pendingPreviousSprint();
     const unified=combinedClosures.find(x=>String(x.sprint_id)===String(sprint.id)&&String(x.sistema_id)===UNIFIED_ID&&!x.reabierto);
     const previous=combinedClosures.find(x=>String(x.sprint_id)===String(sprint.id)&&String(x.sistema_id)===UNIFIED_ID&&x.reabierto);
     const raw=unified?.snapshot || previous?.snapshot || allLiveSnapshot(sprint);
     const snapshot=system.id==='all'?raw:unified||previous?filterSnapshot(raw,system):liveSnapshot(sprint,system);
     const tabs=tabSelector()+scopeSelector();
     if(activeTab==='history'){
-      box.innerHTML=tabs+`<div class="rounded-2xl border border-slate-200 p-5"><h4 class="font-black text-slate-900 mb-2">Fotografías de sprints anteriores</h4><p class="text-xs text-slate-500 mb-4">Los cierres anteriores por sistema se conservan y se muestran como históricos heredados. No se suman dos veces con un cierre mensual único.</p><div class="space-y-2">${consolidatedHistory()}</div></div>`;
+      box.innerHTML=tabs+pendingBanner(pending)+`<div class="rounded-2xl border border-slate-200 p-5"><h4 class="font-black text-slate-900 mb-2">Fotografías de sprints anteriores</h4><p class="text-xs text-slate-500 mb-4">Los cierres anteriores por sistema se conservan y se muestran como históricos heredados. No se suman dos veces con un cierre mensual único.</p><div class="space-y-2">${consolidatedHistory()}</div></div>`;
     } else {
-      box.innerHTML=tabs+`<div class="rounded-2xl border ${unified?'border-emerald-100 bg-emerald-50/20':'border-blue-100 bg-blue-50/20'} p-5"><div class="flex flex-wrap items-start justify-between gap-3"><div><p class="text-[10px] uppercase font-black ${unified?'text-emerald-700':'text-blue-600'}">${unified?'Sprint cerrado · fotografía guardada':previous?'Sprint reabierto · fotografía preservada':'Sprint vigente · información actual'}</p><h4 class="text-xl font-black mt-1">${esc(sprintLabel(sprint))}</h4><p class="text-xs text-slate-500 mt-1">${esc(system.nombre)} · un único cierre mensual para todos los sistemas</p></div><span class="text-xs font-black px-3 py-1 rounded-full ${unified?'bg-emerald-100 text-emerald-700':'bg-blue-100 text-blue-700'}">${unified?'CERRADO':previous?'REABIERTO':'EN CURSO'}</span></div><div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-5">${kpi('Atendidos',snapshot.atendidos,'bg-white border-slate-100')}${kpi('Liberados',snapshot.liberados,'bg-white border-emerald-100')}${kpi('Pendientes',snapshot.pendientes,'bg-white border-amber-100')}${kpi('Arrastres recibidos',snapshot.arrastres,'bg-white border-violet-100')}${kpi('Fuera de planeación',snapshot.fuera_planeacion,'bg-white border-orange-100')}${kpi('Avance',snapshot.avance+'%','bg-white border-indigo-100')}</div><div class="flex flex-wrap gap-2 mt-5"><button type="button" onclick="PMOSprintClose.preview()" class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-black">${unified?'Ver fotografía':'Vista previa'}</button>${!unified&&!previous&&canManage()?'<button type="button" onclick="PMOSprintClose.closeCurrent()" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black">Cerrar Sprint</button>':''}${unified&&isOwner()?`<button type="button" onclick="PMOSprintClose.reopen('${unified.id}')" class="px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-100 text-xs font-black">Reabrir Sprint</button>`:''}${previous&&isOwner()?`<button type="button" onclick="PMOSprintClose.reclose('${previous.id}')" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black">Cerrar nuevamente</button>`:''}</div><p class="text-xs text-slate-500 mt-4">El filtro por sistema solo cambia la consulta. El cierre guarda todos los sistemas juntos y no modifica fotografías anteriores.</p></div>`;
+      box.innerHTML=tabs+pendingBanner(pending)+`<div class="rounded-2xl border ${unified?'border-emerald-100 bg-emerald-50/20':'border-blue-100 bg-blue-50/20'} p-5"><div class="flex flex-wrap items-start justify-between gap-3"><div><p class="text-[10px] uppercase font-black ${unified?'text-emerald-700':'text-blue-600'}">${unified?'Sprint cerrado · fotografía guardada':previous?'Sprint reabierto · fotografía preservada':'Sprint vigente · información actual'}</p><h4 class="text-xl font-black mt-1">${esc(sprintLabel(sprint))}</h4><p class="text-xs text-slate-500 mt-1">${esc(system.nombre)} · un único cierre mensual para todos los sistemas</p></div><span class="text-xs font-black px-3 py-1 rounded-full ${unified?'bg-emerald-100 text-emerald-700':'bg-blue-100 text-blue-700'}">${unified?'CERRADO':previous?'REABIERTO':'EN CURSO'}</span></div><div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-5">${kpi('Atendidos',snapshot.atendidos,'bg-white border-slate-100')}${kpi('Liberados',snapshot.liberados,'bg-white border-emerald-100')}${kpi('Pendientes',snapshot.pendientes,'bg-white border-amber-100')}${kpi('Arrastres recibidos',snapshot.arrastres,'bg-white border-violet-100')}${kpi('Fuera de planeación',snapshot.fuera_planeacion,'bg-white border-orange-100')}${kpi('Avance',snapshot.avance+'%','bg-white border-indigo-100')}</div><div class="flex flex-wrap gap-2 mt-5"><button type="button" onclick="PMOSprintClose.preview()" class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-black">${unified?'Ver fotografía':'Vista previa'}</button>${!unified&&!previous&&canManage()&&!pending?'<button type="button" onclick="PMOSprintClose.closeCurrent()" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black">Cerrar Sprint</button>':(!unified&&!previous&&canManage()&&pending?'<span class="px-3 py-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black">CIERRA EL PERIODO ANTERIOR PRIMERO</span>':'')}${unified&&isOwner()?`<button type="button" onclick="PMOSprintClose.reopen('${unified.id}')" class="px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-100 text-xs font-black">Reabrir Sprint</button>`:''}${previous&&isOwner()?`<button type="button" onclick="PMOSprintClose.reclose('${previous.id}')" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black">Cerrar nuevamente</button>`:''}</div><p class="text-xs text-slate-500 mt-4">El filtro por sistema solo cambia la consulta. El cierre guarda todos los sistemas juntos y no modifica fotografías anteriores.</p></div>`;
     }
     if(window.lucide)lucide.createIcons();
   }
@@ -353,10 +484,38 @@
     m.classList.remove('hidden');
     if(window.lucide) lucide.createIcons();
   }
+  function previewPending(sprintId){
+    const sprint=(cats?.sprints||[]).find(s=>String(s.id)===String(sprintId));
+    if(!sprint) return;
+    const snap=recoverySnapshot(sprint);
+    const sys=scopedSystem();
+    const view=sys.id==='all'?snap:filterSnapshot(snap,sys);
+    const low=Number(snap?._meta?.baja_confianza||0);
+    modal(view,`Recuperación de cierre · ${sprintLabel(sprint)}`,`Reconstrucción retrospectiva · corte ${snap?._meta?.fecha_corte||'—'}${low?` · ${low} registro(s) con estimación baja`:''}`,false);
+  }
+  async function closePending(sprintId){
+    if(!canManage()){alert('Tu acceso al Dashboard es de solo consulta.');return;}
+    const sprint=(cats?.sprints||[]).find(s=>String(s.id)===String(sprintId));
+    if(!sprint) return;
+    const load=await loadCombinedClosures();
+    if(load.error){alert('No fue posible verificar cierres existentes: '+load.error.message);return;}
+    if(hasHistoricalClosure(sprint)){alert('Este periodo ya cuenta con una fotografía histórica.');await render();return;}
+    const snapshot=recoverySnapshot(sprint);
+    const low=Number(snapshot?._meta?.baja_confianza||0);
+    const ok=await askSprintAction({title:`Generar cierre recuperado · ${sprintLabel(sprint)}`,message:`Órbita no tomó una fotografía al cierre de este mes. Se guardará una reconstrucción retrospectiva con ${snapshot.atendidos} requerimientos usando la fotografía anterior, Sprint de origen y fechas disponibles.${low?` ${low} registro(s) tienen estimación de baja confianza.`:''} El historial quedará marcado como RECUPERADO para no confundirlo con un cierre oportuno.`,confirmText:'Guardar cierre recuperado',tone:'blue',kicker:'Recuperación de periodo'});
+    if(!ok) return;
+    const row={sprint_id:String(sprint.id),sprint_nombre:String(sprint.nombre||''),anio:Number(sprint.anio||new Date().getFullYear()),mes_numero:sprintMonthIndex(sprint)+1,sistema_id:UNIFIED_ID,sistema_nombre:'Todos los sistemas',snapshot,cerrado_por_email:currentEmail()||null};
+    const {error}=await _supabase.from('pmo_sprint_cierres').insert(row);
+    if(error){alert('No fue posible guardar el cierre recuperado: '+error.message);return;}
+    await render();
+  }
+
   async function closeCurrent(){
     const sprint=activeSprint();
     if(!sprint) return;
     if(!canManage()){alert('Tu acceso al Dashboard es de solo consulta.');return;}
+    const pending=pendingPreviousSprint();
+    if(pending){alert(`Antes de cerrar ${sprintLabel(sprint)} debes resolver el cierre pendiente de ${sprintLabel(pending)}.`);return;}
     const load=await loadCombinedClosures();
     if(load.error){alert('No fue posible verificar cierres existentes: '+load.error.message);return;}
     if(combinedClosures.some(x=>String(x.sprint_id)===String(sprint.id)&&String(x.sistema_id)===UNIFIED_ID)){
@@ -456,6 +615,6 @@
   window.addEventListener('load',()=>setTimeout(render,450));
   window.addEventListener('pmo:profile-ready',()=>setTimeout(render,100));
 
-  window.PMOSprintClose={render,preview,view,viewCombined,setScope,setTab,closeCurrent,reopen,reclose,copyClosureImage,cancelAction};
+  window.PMOSprintClose={render,preview,previewPending,view,viewCombined,setScope,setTab,closeCurrent,closePending,reopen,reclose,copyClosureImage,cancelAction};
   window.cerrarModalCierreSprint=closeModal;
 })();
