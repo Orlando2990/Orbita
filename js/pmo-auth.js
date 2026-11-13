@@ -7,21 +7,21 @@
   const ROLE_LABELS = { usuario:'Usuario', pmo:'PMO', direccion:'Dirección', administrador:'Administrador' };
   const LEVEL_LABELS = { none:'Sin acceso', read:'Solo consulta', manage:'Gestión' };
   const PAGE_MODULE = {
-    'self_service.html':'selfservice','index.html':'matriz','solicitudes_rqm.html':'rqm',
+    'sprint_mes.html':'selfservice', 'self_service.html':'selfservice','index.html':'matriz','solicitudes_rqm.html':'rqm',
     'importar_matriz.html':'importar','index_dashboard_ejecutivo.html':'dashboard',
-    'seguimiento_ejecutivo.html':'seguimiento','portafolio_productos.html':'portafolio','dashboard_portafolio_productos.html':'dashboard_productos','plataforma_proyectos_mockup.html':'proyectos','centro_avisos_mockup.html':'avisos','admin_catalogos.html':'catalogos','usuarios.html':'usuarios'
+    'seguimiento_ejecutivo.html':'seguimiento','plataforma_proyectos_mockup.html':'proyectos','centro_avisos_mockup.html':'avisos','admin_catalogos.html':'catalogos','usuarios.html':'usuarios'
   };
   const MODULE_ROUTE = {
     selfservice:'self_service.html', matriz:'index.html', rqm:'solicitudes_rqm.html',
     dashboard:'index_dashboard_ejecutivo.html', seguimiento:'seguimiento_ejecutivo.html',
-    importar:'importar_matriz.html', catalogos:'admin_catalogos.html', usuarios:'usuarios.html', proyectos:'plataforma_proyectos_mockup.html', portafolio:'portafolio_productos.html',dashboard_productos:'dashboard_portafolio_productos.html',avisos:'centro_avisos_mockup.html'
+    importar:'importar_matriz.html', catalogos:'admin_catalogos.html', usuarios:'usuarios.html', proyectos:'plataforma_proyectos_mockup.html',avisos:'centro_avisos_mockup.html'
   };
-  const MODULE_ORDER=['rqm','matriz','selfservice','dashboard','seguimiento','importar','catalogos','usuarios','proyectos','portafolio','dashboard_productos','avisos'];
+  const MODULE_ORDER=['rqm','matriz','selfservice','dashboard','seguimiento','importar','catalogos','usuarios','proyectos','avisos'];
   const ROLE_DEFAULTS = {
     usuario:{selfservice:'manage',avisos:'read'},
-    pmo:{selfservice:'manage',matriz:'manage',rqm:'manage',dashboard:'read',seguimiento:'manage',catalogos:'read',proyectos:'manage',portafolio:'manage',dashboard_productos:'read',avisos:'manage'},
-    direccion:{selfservice:'manage',matriz:'read',rqm:'read',dashboard:'read',seguimiento:'read',proyectos:'read',portafolio:'read',dashboard_productos:'read',avisos:'read'},
-    administrador:{selfservice:'manage',matriz:'manage',rqm:'manage',dashboard:'manage',seguimiento:'manage',importar:'manage',catalogos:'manage',usuarios:'manage',proyectos:'manage',portafolio:'manage',dashboard_productos:'manage',avisos:'manage'}
+    pmo:{selfservice:'manage',matriz:'manage',rqm:'manage',dashboard:'read',seguimiento:'manage',catalogos:'read',proyectos:'manage',avisos:'manage'},
+    direccion:{selfservice:'manage',matriz:'read',rqm:'read',dashboard:'read',seguimiento:'read',proyectos:'read',avisos:'read'},
+    administrador:{selfservice:'manage',matriz:'manage',rqm:'manage',dashboard:'manage',seguimiento:'manage',importar:'manage',catalogos:'manage',usuarios:'manage',proyectos:'manage',avisos:'manage'}
   };
 
   let currentUser=null, currentProfile=null, currentPermissions={}, guardPromise=null;
@@ -38,8 +38,8 @@
   function canView(moduleCode){return accessLevel(moduleCode)!=='none'}
   function canManage(moduleCode){return accessLevel(moduleCode)==='manage'}
   function moduleForPage(page=pageName()){return PAGE_MODULE[page]||null}
-  function canAccess(page){const m=moduleForPage(page);return !m||canView(m)}
-  function homeForPermissions(perms=currentPermissions){for(const m of MODULE_ORDER){if((perms[m]||'none')!=='none')return MODULE_ROUTE[m]}return'login.html'}
+  function canAccess(page){if(page==='inicio.html')return MODULE_ORDER.some(m=>canView(m));const m=moduleForPage(page);return !m||canView(m)}
+  function homeForPermissions(perms=currentPermissions){for(const m of MODULE_ORDER){if((perms[m]||'none')!=='none')return 'inicio.html'}return'login.html'}
   function homeForRole(role){return homeForPermissions(Object.keys(currentPermissions).length?currentPermissions:defaultsForRole(role))}
 
   async function loadProfile(user){

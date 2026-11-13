@@ -3388,24 +3388,13 @@ let todosLosProyectos = [];
             crearGraficaSeguimiento('seguimiento-chart-portafolio', 'doughnut', labels, data, 'Portafolio');
         }
 
-        // V3.3.41: vistas exclusivamente visuales; no alteran la lógica del avance.
-        window.cambiarVistaRoadmapPMO = function(vista) {
-            if (!['timeline','chevrons','tiles'].includes(vista)) return;
-            const panel = document.getElementById('reporte-mapa-requerimientos');
-            if (!panel) return;
-            panel.setAttribute('data-roadmap-view', vista);
-            panel.querySelectorAll('[data-roadmap-view].pmo-view-btn').forEach(btn => {
-                btn.setAttribute('aria-pressed', String(btn.dataset.roadmapView === vista));
-            });
-            try { localStorage.setItem('orbita-roadmap-view-v3341', vista); } catch (e) {}
+        // V3.3.48: una sola presentación del roadmap: las 11 tarjetas.
+        window.cambiarVistaRoadmapPMO = function () {
+            const panel=document.getElementById('reporte-mapa-requerimientos');
+            if(panel) panel.setAttribute('data-roadmap-view','tiles');
         };
-        function iniciarVistaRoadmapPMO() {
-            let vista = 'chevrons';
-            try { vista = localStorage.getItem('orbita-roadmap-view-v3341') || vista; } catch (e) {}
-            window.cambiarVistaRoadmapPMO(vista);
-        }
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciarVistaRoadmapPMO);
-        else iniciarVistaRoadmapPMO();
+        if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',window.cambiarVistaRoadmapPMO);
+        else window.cambiarVistaRoadmapPMO();
 
         // V3.3.40: roadmap de flechas compacto (11 etapas visibles en escritorio).
         function renderizarLineaFases(p) {
@@ -3805,7 +3794,6 @@ let todosLosProyectos = [];
                 x.drawImage(r,0,0,W,r.height);
                 x.drawImage(a,0,r.height+vgap,gw,ah);
                 x.drawImage(p,gw+gap,r.height+vgap,gw,ph);
-                x.strokeStyle='#e2e8f0'; x.lineWidth=2; x.beginPath(); x.moveTo(0,c.height-footer+8); x.lineTo(W,c.height-footer+8); x.stroke();
                 x.fillStyle='#64748b'; x.font='700 20px Arial, sans-serif'; x.textAlign='right'; x.textBaseline='middle';
                 x.fillText(`Corte · ${obtenerRangoSemanaActual()}`,W-12,c.height-25);
                 descargarDataUrl(c.toDataURL('image/png'),`${nombreArchivoReporte('compilado_seguimiento_ejecutivo')}.png`);

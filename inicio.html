@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Inicio | ÓRBITA</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="css/pmo-layout.css"><link rel="stylesheet" href="css/orbita-design.css?v=3.3.50">
+<link rel="stylesheet" href="css/orbita-lab.css?v=3.3.52">
+</head><body><div id="pmo-app-header" data-pmo-module="inicio"></div>
+<main class="orbita-home">
+<div class="oh-page-heading"><div><span class="oh-eyebrow">PORTAL DE SEGUIMIENTO TECNOLÓGICO</span><h1>Inicio</h1><p>Solicita, consulta y da seguimiento desde un solo lugar.</p></div><button type="button" id="oh-refresh" class="oh-secondary">Actualizar resumen</button></div>
+<section class="oh-hero"><div><span class="oh-eyebrow"></span><h2>Bienvenido a Órbita</h2><p>Un espacio para solicitar, consultar y dar seguimiento a tus requerimientos.</p><a id="oh-new" href="self_service.html?accion=nueva#formulario-solicitud" class="oh-primary" hidden>＋ Nueva solicitud</a><p id="oh-read-only" class="oh-small" hidden>Tu acceso a Mis solicitudes es de solo consulta.</p></div><div class="oh-orbit" aria-hidden="true"><b>◉</b><i></i></div></section>
+<div class="oh-grid">
+<section id="oh-requests-card" class="oh-card" hidden><div class="oh-card-head"><div><h2>Mis solicitudes</h2><p>Resumen de tus requerimientos</p></div><a href="self_service.html#mis-solicitudes">Abrir ↗</a></div><div class="oh-metrics" id="oh-requests-metrics"></div><div class="oh-card-foot" id="oh-latest" role="status">Consultando solicitudes…</div></section>
+<section id="oh-sprint-card" class="oh-card" hidden><div class="oh-card-head"><div><h2>Sprint del mes</h2><p id="oh-period">Compromisos del área de Tecnología</p></div><a href="sprint_mes.html" id="oh-open-sprint" role="button" aria-haspopup="dialog" aria-controls="oh-sprint-modal">Abrir ↗</a></div><div class="oh-metrics" id="oh-sprint-metrics"></div><div class="oh-card-foot" id="oh-sprint-note" role="status">Consultando Sprint…</div></section>
+</div>
+<section id="oh-notice-card" class="oh-notice" hidden><i data-lucide="bell"></i><div><h2 id="oh-notice-title">Avisos pendientes</h2><p id="oh-notice-text" role="status">Consultando tus avisos…</p></div><a id="oh-notice-link" class="oh-secondary" href="centro_avisos_mockup.html">Ver avisos →</a></section>
+<p id="oh-limited" class="oh-card" hidden>Consulta los módulos disponibles para tu perfil en el menú.</p>
+<p class="oh-footnote" id="oh-updated" role="status">El resumen respeta los permisos de tu cuenta.</p>
+</main>
+<div id="oh-sprint-modal" class="oh-sprint-modal" role="dialog" aria-modal="true" aria-labelledby="oh-sprint-modal-title" hidden>
+  <div class="oh-sprint-backdrop" data-close-sprint></div>
+  <section class="oh-sprint-dialog" tabindex="-1">
+    <div class="oh-sprint-dialog-head"><div><h2 id="oh-sprint-modal-title">NOVIEMBRE 2026</h2><p id="oh-sprint-modal-subtitle" class="oh-modal-subtitle">Todos los sistemas · vista previa</p></div><button type="button" id="oh-close-sprint" aria-label="Cerrar consulta de Sprint" class="oh-sprint-close"><i data-lucide="x"></i></button></div>
+    <iframe id="oh-sprint-frame" title="Consulta de los requerimientos del Sprint mensual" loading="lazy"></iframe>
+  </section>
+</div>
+<script src="js/pmo-auth.js?v=3.3.50"></script><script src="js/pmo-layout.js?v=3.3.50"></script><script src="js/orbita-summary.js?v=3.3.50"></script><script src="js/orbita-home.js?v=3.3.50"></script><script src="js/orbita-lab.js?v=3.3.52"></script>
+</body></html>

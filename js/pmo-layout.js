@@ -1,32 +1,32 @@
 // PMO Control - Shell reutilizable con navegación lateral por rol
 (function () {
     const MODULES = {
+        inicio: {title:'Inicio',subtitle:'Portal de seguimiento tecnológico',icon:'house',active:'inicio',hideTopAccount:true},
         matriz: { title:'Matriz de requerimientos', subtitle:'Gestión operativa del portafolio', icon:'layers-3', active:'matriz', hideTopAccount:true },
         avisos: { title:'Centro de Avisos', subtitle:'Comunicados y novedades de GAP', icon:'bell', active:'avisos', hideTopAccount:true },
         proyectos: { title:'Plataforma de Proyectos', subtitle:'Iniciativas y JIRA', icon:'briefcase-business', active:'proyectos', hideTopAccount:true },
         dashboard: { title:'Dashboard ejecutivo', subtitle:'Indicadores y salud del portafolio', icon:'layout-dashboard', active:'dashboard', hideTopAccount:true },
         seguimiento: { title:'Seguimiento ejecutivo', subtitle:'Roadmap, avances y reportes', icon:'route', active:'seguimiento', hideTopAccount:true },
-        portafolio: { title:'Portafolio de productos', subtitle:'Seguimiento ejecutivo por sistema y producto', icon:'boxes', active:'portafolio', hideTopAccount:true },
-        dashboard_productos: { title:'Dashboard de productos', subtitle:'Indicadores y salud del portafolio de productos', icon:'chart-no-axes-combined', active:'dashboard_productos', hideTopAccount:true },
         importar: { title:'Importar matriz', subtitle:'Carga masiva desde Excel', icon:'file-up', active:'importar', hideTopAccount:true },
         rqm: { title:'Buzón de RQM', subtitle:'Recepción, folios y revisión de requerimientos', icon:'clipboard-list', active:'rqm', hideTopAccount:true },
-        selfservice: { title:'Portal de solicitudes', subtitle:'Alta y seguimiento de requerimientos', icon:'file-plus-2', active:'selfservice', hideTopAccount:true },
+        sprintmes: { title:'Sprint del mes', subtitle:'Consulta mensual de los requerimientos', icon:'calendar-days', active:'sprintmes', hideTopAccount:true },
+        selfservice: { title:'Mis solicitudes', subtitle:'Alta y seguimiento de requerimientos', icon:'file-plus-2', active:'selfservice', hideTopAccount:true },
         catalogos: { title:'Catálogos', subtitle:'Configuración funcional del sistema', icon:'settings-2', active:'catalogos', hideTopAccount:true },
         usuarios: { title:'Usuarios y roles', subtitle:'Administración de accesos', icon:'users-round', active:'usuarios', hideTopAccount:true }
     };
 
     const NAV_GROUPS = [
+        {label:'Inicio',items:[{key:'inicio',label:'Inicio',href:'inicio.html',icon:'house'}]},
         { label:'Trabajo', items:[
             { key:'rqm', label:'Buzón de RQM', href:'solicitudes_rqm.html', icon:'inbox', roles:['pmo','administrador'] },
             { key:'matriz', label:'Matriz', href:'index.html', icon:'list-checks', roles:['pmo','administrador'] },
-            { key:'selfservice', label:'Mis solicitudes', href:'self_service.html', icon:'file-plus-2', roles:['usuario','pmo','administrador'] }
+            { key:'selfservice', label:'Mis solicitudes', href:'self_service.html', icon:'file-plus-2', roles:['usuario','pmo','administrador'] },
+
         ]},
         { label:'Análisis', items:[
             { key:'proyectos', label:'Plataforma de Proyectos', href:'plataforma_proyectos_mockup.html', icon:'briefcase-business', roles:['pmo','direccion','administrador'] },
             { key:'dashboard', label:'Dashboard', href:'index_dashboard_ejecutivo.html', icon:'layout-dashboard', roles:['pmo','direccion','administrador'] },
             { key:'seguimiento', label:'Seguimiento', href:'seguimiento_ejecutivo.html', icon:'route', roles:['pmo','direccion','administrador'] },
-            { key:'portafolio', label:'Portafolio productos', href:'portafolio_productos.html', icon:'boxes', roles:['pmo','direccion','administrador'] },
-            { key:'dashboard_productos', label:'Dashboard productos', href:'dashboard_portafolio_productos.html', icon:'chart-no-axes-combined', roles:['pmo','direccion','administrador'] }
         ]},
         { label:'Comunicación', items:[
             { key:'avisos', label:'Centro de Avisos', href:'centro_avisos_mockup.html', icon:'bell', roles:['usuario','pmo','direccion','administrador'] }
@@ -40,15 +40,15 @@
 
     function detectModule() {
         const page=(location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        if(page==='inicio.html') return 'inicio';
         if(page.includes('centro_avisos')) return 'avisos';
         if(page.includes('plataforma_proyectos')) return 'proyectos';
-        if(page.includes('dashboard_portafolio_productos')) return 'dashboard_productos';
         if(page.includes('dashboard')) return 'dashboard';
         if(page.includes('seguimiento')) return 'seguimiento';
-        if(page.includes('portafolio_productos')) return 'portafolio';
         if(page.includes('importar')) return 'importar';
         if(page.includes('solicitudes_rqm')) return 'rqm';
         if(page.includes('admin_catalogos')) return 'catalogos';
+        if(page.includes('sprint_mes')) return 'sprintmes';
         if(page.includes('self_service')) return 'selfservice';
         if(page.includes('usuarios')) return 'usuarios';
         return 'matriz';
@@ -61,7 +61,7 @@
     function visibleGroups(role, active) {
         return NAV_GROUPS.map(group => ({
             ...group,
-            items: group.items.filter(item => window.PMOAuth?.canView?.(item.permissionKey || item.key))
+            items: group.items.filter(item => item.key==='inicio' ? window.PMOAuth?.canAccess?.('inicio.html') : window.PMOAuth?.canView?.(item.permissionKey || item.key))
         })).filter(group => group.items.length).map(group => `
             <div class="pmo-side-group">
                 <p class="pmo-side-label">${group.label}</p>
@@ -98,7 +98,8 @@
             </button>` : '';
 
         return `
-        <aside class="pmo-sidebar" aria-label="Navegación principal">
+        <button class="pmo-sidebar-backdrop" aria-label="Cerrar menú" onclick="PMOLayout.closeSidebar()"></button>
+        <aside id="pmo-sidebar" class="pmo-sidebar" aria-label="Navegación principal">
             <button class="pmo-side-brand" onclick="window.location.href='${home}'" title="Ir al inicio">
                 <span class="pmo-side-logo"><img src="assets/orbita-icon.png" alt="ORBITA" style="width:100%;height:100%;object-fit:contain;background:white;border-radius:9px;padding:2px"></span>
                 <span><strong>ORBITA</strong><small>Plataforma de GAP</small></span>
@@ -111,9 +112,11 @@
             </div>
         </aside>
         <header class="pmo-topbar">
-            <div class="pmo-top-title">
-                <span class="pmo-top-icon"><i data-lucide="${cfg.icon}"></i></span>
-                <div><h1>${cfg.title}</h1><p><span class="pmo-status-dot"></span>${cfg.subtitle}</p></div>
+            <button type="button" class="pmo-menu-toggle" aria-label="Abrir menú" aria-controls="pmo-sidebar" aria-expanded="false" onclick="PMOLayout.toggleSidebar()"><i data-lucide="menu"></i></button>
+            <div class="pmo-top-title" aria-label="Ubicación actual">
+                <a class="orbita-crumb-home" href="inicio.html">Órbita</a>
+                <span class="orbita-crumb-separator" aria-hidden="true">/</span>
+                <span class="orbita-crumb-current">${cfg.title}</span>
             </div>
             <div class="pmo-top-actions">
                 ${noticeBell}
@@ -159,6 +162,7 @@
         return false;
     }
     function renderNoticeIndicators(){
+        window.dispatchEvent(new CustomEvent('orbita:inicio-avisos',{detail:{loaded:noticesLoaded,items:notices.map(n=>({id:n.id,titulo:n.titulo,importante:n.importante}))}}));
         const count=notices.length;
         [document.getElementById('pmo-notice-top-count'),document.getElementById('pmo-side-notice-count')].forEach(el=>{
             if(!el)return;
@@ -196,6 +200,7 @@
             renderNoticeIndicators();
         }catch(err){
             // Ante errores de red o RLS no inventamos un contador ni mostramos comunicados restringidos.
+            window.dispatchEvent(new CustomEvent('orbita:inicio-avisos',{detail:{error:true}}));
             console.warn('ORBITA: no se pudo actualizar el contador de avisos:',err?.message||err);
         }finally{noticeRefreshPending=false}
     }
@@ -231,8 +236,8 @@
     window.addEventListener('focus',refreshNotices);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshNotices()});
 
-    function toggleSidebar(){ document.body.classList.toggle('pmo-sidebar-open'); }
-    function closeSidebar(){ document.body.classList.remove('pmo-sidebar-open'); }
+    function toggleSidebar(){ const open=document.body.classList.toggle('pmo-sidebar-open'); document.querySelector('.pmo-menu-toggle')?.setAttribute('aria-expanded',String(open)); }
+    function closeSidebar(){ document.body.classList.remove('pmo-sidebar-open'); document.querySelector('.pmo-menu-toggle')?.setAttribute('aria-expanded','false'); }
     function toggleAccountMenu(){ document.getElementById('pmo-account-popover')?.classList.toggle('hidden'); }
 
     window.PMOLayout={
@@ -244,6 +249,7 @@
         }
     };
 
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSidebar();toggleNotifications(false);}});
     document.addEventListener('click', (e)=>{
         const pop=document.getElementById('pmo-account-popover');
         if(pop && !e.target.closest('.pmo-top-account') && !e.target.closest('#pmo-account-popover')) pop.classList.add('hidden');

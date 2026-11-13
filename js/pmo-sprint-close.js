@@ -113,8 +113,7 @@
       const legacy=group.filter(x=>String(x.sistema_id)!==UNIFIED_ID && !x.reabierto);
       const snap=unified?.snapshot || mergedSnapshot(legacy.map(x=>x.snapshot||{}));
       const recovered=String(snap?._meta?.tipo||'')==='RECUPERADO';
-      const status=recovered?'Cierre recuperado':unified?'Cierre mensual único':`Histórico anterior · ${legacy.length} sistema(s)`;
-      return `<div class="rounded-xl bg-slate-50 border border-slate-100 p-3 flex flex-wrap justify-between gap-2 items-center"><div><p class="text-sm font-black">${esc(first.sprint_nombre)} ${esc(first.anio)}</p><p class="text-[11px] text-slate-500">${esc(status)} · ${snap.atendidos} RQM</p></div><button type="button" onclick="PMOSprintClose.viewCombined('${esc(String(first.sprint_id))}')" class="border border-slate-200 rounded-lg bg-white px-3 py-2 text-xs font-black">Ver fotografía</button></div>`;
+      return `<div class="rounded-xl bg-slate-50 border border-slate-100 p-3 flex flex-wrap justify-between gap-2 items-center"><div><p class="text-sm font-black">${esc(first.sprint_nombre)} ${esc(first.anio)}</p></div><button type="button" onclick="PMOSprintClose.viewCombined('${esc(String(first.sprint_id))}')" class="border border-slate-200 rounded-lg bg-white px-3 py-2 text-xs font-black">Ver fotografía</button></div>`;
     }).join('');
   }
   function viewCombined(sprintId){
@@ -355,9 +354,9 @@
     const snapshot=system.id==='all'?raw:unified||previous?filterSnapshot(raw,system):liveSnapshot(sprint,system);
     const tabs=tabSelector()+scopeSelector();
     if(activeTab==='history'){
-      box.innerHTML=tabs+pendingBanner(pending)+`<div class="rounded-2xl border border-slate-200 p-5"><h4 class="font-black text-slate-900 mb-2">Fotografías de sprints anteriores</h4><p class="text-xs text-slate-500 mb-4">Los cierres anteriores por sistema se conservan y se muestran como históricos heredados. No se suman dos veces con un cierre mensual único.</p><div class="space-y-2">${consolidatedHistory()}</div></div>`;
+      box.innerHTML=tabs+pendingBanner(pending)+`<div class="rounded-2xl border border-slate-200 p-5"><h4 class="font-black text-slate-900 mb-2">Fotografías de sprints anteriores</h4><div class="space-y-2">${consolidatedHistory()}</div></div>`;
     } else {
-      box.innerHTML=tabs+pendingBanner(pending)+`<div class="rounded-2xl border ${unified?'border-emerald-100 bg-emerald-50/20':'border-blue-100 bg-blue-50/20'} p-5"><div class="flex flex-wrap items-start justify-between gap-3"><div><p class="text-[10px] uppercase font-black ${unified?'text-emerald-700':'text-blue-600'}">${unified?'Sprint cerrado · fotografía guardada':previous?'Sprint reabierto · fotografía preservada':'Sprint vigente · información actual'}</p><h4 class="text-xl font-black mt-1">${esc(sprintLabel(sprint))}</h4><p class="text-xs text-slate-500 mt-1">${esc(system.nombre)} · un único cierre mensual para todos los sistemas</p></div><span class="text-xs font-black px-3 py-1 rounded-full ${unified?'bg-emerald-100 text-emerald-700':'bg-blue-100 text-blue-700'}">${unified?'CERRADO':previous?'REABIERTO':'EN CURSO'}</span></div><div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-5">${kpi('Atendidos',snapshot.atendidos,'bg-white border-slate-100')}${kpi('Liberados',snapshot.liberados,'bg-white border-emerald-100')}${kpi('Pendientes',snapshot.pendientes,'bg-white border-amber-100')}${kpi('Arrastres recibidos',snapshot.arrastres,'bg-white border-violet-100')}${kpi('Fuera de planeación',snapshot.fuera_planeacion,'bg-white border-orange-100')}${kpi('Avance',snapshot.avance+'%','bg-white border-indigo-100')}</div><div class="flex flex-wrap gap-2 mt-5"><button type="button" onclick="PMOSprintClose.preview()" class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-black">${unified?'Ver fotografía':'Vista previa'}</button>${!unified&&!previous&&canManage()&&!pending?'<button type="button" onclick="PMOSprintClose.closeCurrent()" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black">Cerrar Sprint</button>':(!unified&&!previous&&canManage()&&pending?'<span class="px-3 py-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black">CIERRA EL PERIODO ANTERIOR PRIMERO</span>':'')}${unified&&isOwner()?`<button type="button" onclick="PMOSprintClose.reopen('${unified.id}')" class="px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-100 text-xs font-black">Reabrir Sprint</button>`:''}${previous&&isOwner()?`<button type="button" onclick="PMOSprintClose.reclose('${previous.id}')" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black">Cerrar nuevamente</button>`:''}</div><p class="text-xs text-slate-500 mt-4">El filtro por sistema solo cambia la consulta. El cierre guarda todos los sistemas juntos y no modifica fotografías anteriores.</p></div>`;
+      box.innerHTML=tabs+pendingBanner(pending)+`<div class="rounded-2xl border ${unified?'border-emerald-100 bg-emerald-50/20':'border-blue-100 bg-blue-50/20'} p-5"><div class="flex flex-wrap items-start justify-between gap-3"><div><p class="text-[10px] uppercase font-black ${unified?'text-emerald-700':'text-blue-600'}">${unified?'Sprint cerrado · fotografía guardada':previous?'Sprint reabierto · fotografía preservada':'Sprint vigente · información actual'}</p><h4 class="text-xl font-black mt-1">${esc(sprintLabel(sprint))}</h4></div><span class="text-xs font-black px-3 py-1 rounded-full ${unified?'bg-emerald-100 text-emerald-700':'bg-blue-100 text-blue-700'}">${unified?'CERRADO':previous?'REABIERTO':'EN CURSO'}</span></div><div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-5">${kpi('Atendidos',snapshot.atendidos,'bg-white border-slate-100')}${kpi('Liberados',snapshot.liberados,'bg-white border-emerald-100')}${kpi('Pendientes',snapshot.pendientes,'bg-white border-amber-100')}${kpi('Arrastres recibidos',snapshot.arrastres,'bg-white border-violet-100')}${kpi('Fuera de planeación',snapshot.fuera_planeacion,'bg-white border-orange-100')}${kpi('Avance',snapshot.avance+'%','bg-white border-indigo-100')}</div><div class="flex flex-wrap gap-2 mt-5"><button type="button" onclick="PMOSprintClose.preview()" class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-black">${unified?'Ver fotografía':'Vista previa'}</button>${!unified&&!previous&&canManage()&&!pending?'<button type="button" onclick="PMOSprintClose.closeCurrent()" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black">Cerrar Sprint</button>':(!unified&&!previous&&canManage()&&pending?'<span class="px-3 py-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black">CIERRA EL PERIODO ANTERIOR PRIMERO</span>':'')}${unified&&isOwner()?`<button type="button" onclick="PMOSprintClose.reopen('${unified.id}')" class="px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-100 text-xs font-black">Reabrir Sprint</button>`:''}${previous&&isOwner()?`<button type="button" onclick="PMOSprintClose.reclose('${previous.id}')" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black">Cerrar nuevamente</button>`:''}</div></div>`;
     }
     if(window.lucide)lucide.createIcons();
   }
@@ -365,7 +364,7 @@
   function modal(snapshot,title,subtitle,closed=true){
     const m=document.getElementById('modal-cierre-sprint');
     if(!m) return;
-    document.getElementById('modal-cierre-sprint-titulo').textContent=title;
+    document.getElementById('modal-cierre-sprint-titulo').textContent=String(title||'').replace(/^Cierre de Sprint\s*·\s*/i,'').replace(/^Recuperación de cierre\s*·\s*/i,'');
     document.getElementById('modal-cierre-sprint-subtitulo').textContent=subtitle||'';
 
     const order=['LIBERADO','UAT','QA','DESARROLLO','ANALISIS','BACKLOG'];
@@ -407,16 +406,10 @@
           <div id="pmo-cierre-lista-items" class="divide-y divide-slate-100"></div>
         </div>
       </div>
-      <div class="mt-5 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div><p class="text-xs font-black uppercase tracking-wide text-indigo-600">Resumen del cierre</p><p id="pmo-resumen-cierre-texto" class="text-sm text-slate-700 mt-1 leading-relaxed"></p></div>
-          <button type="button" onclick="PMOSprintClose.copyClosureImage()" class="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black"><i data-lucide="copy" class="w-4 h-4"></i>Copiar imagen del cierre</button>
-        </div>
+      <div class="mt-5 flex justify-end">
+        <button type="button" onclick="PMOSprintClose.copyClosureImage()" class="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black"><i data-lucide="copy" class="w-4 h-4"></i>Copiar imagen del cierre</button>
       </div>
     </div>`;
-
-    const summary=`El Sprint cerró con ${snapshot.atendidos} requerimientos atendidos, de los cuales ${snapshot.liberados} fueron liberados. Al cierre, ${snapshot.pendientes} permanecieron en proceso. El avance general fue de ${snapshot.avance}%.`;
-    document.getElementById('pmo-resumen-cierre-texto').textContent=summary;
 
     const renderFilters=()=>{
       const box=document.getElementById('pmo-cierre-filtros-estatus');

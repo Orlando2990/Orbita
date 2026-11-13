@@ -2,7 +2,8 @@
 <title>ORBITA - Mockup Detenciones</title>
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script><script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><link rel="stylesheet" href="css/pmo-layout.css">
-<style>.modalx{position:fixed;inset:0;background:#0f172a88;display:flex;align-items:center;justify-content:center;padding:20px;z-index:99}.modalx.hidden{display:none}</style></head>
+<style>.modalx{position:fixed;inset:0;background:#0f172a88;display:flex;align-items:center;justify-content:center;padding:20px;z-index:99}.modalx.hidden{display:none}</style><link rel="stylesheet" href="css/orbita-design.css?v=3.3.50">
+</head>
 <body class="bg-slate-50 text-slate-800"><div id="pmo-app-header" data-pmo-module="seguimiento"></div>
 <main class="max-w-7xl mx-auto p-6 space-y-5">
 <section class="rounded-2xl bg-gradient-to-r from-violet-600 to-blue-600 text-white p-5 flex justify-between gap-4"><div><b>Mockup funcional · Detenciones + Tiempos por Clasificación</b><p class="text-xs text-white/80 mt-1">Datos demo en memoria. No modifica Supabase.</p></div><span class="text-xs font-black bg-white/15 rounded-full px-3 py-1 h-fit">V3.2.69 DEMO</span></section>
@@ -31,4 +32,4 @@ function openM(x){document.getElementById(x).classList.remove('hidden')}function
 function sync(){document.getElementById('badge').classList.toggle('hidden',!paused);document.getElementById('stopbtn').classList.toggle('hidden',paused);document.getElementById('resumebtn').classList.toggle('hidden',!paused);let c=document.getElementById('condition');c.textContent=paused?'⏸ Detenido':'Activo';c.className=paused?'bg-rose-100 text-rose-700 rounded-full px-2 py-1 font-black':'bg-emerald-100 text-emerald-700 rounded-full px-2 py-1 font-black';document.getElementById('since').textContent=paused?'10 sep 2026':'—';document.getElementById('reason').textContent=paused?'Documento pendiente':'—'}
 function doResume(){paused=false;document.getElementById('resumeDate').textContent='17 sep 2026';closeM('resume');sync()}function doStop(){paused=true;document.getElementById('resumeDate').textContent='—';closeM('stop');sync()}
 document.addEventListener('DOMContentLoaded',()=>{render();sync();lucide.createIcons()});
-</script><script src="js/pmo-auth.js"></script><script src="js/pmo-layout.js"></script></body></html>
+</script><script src="js/pmo-auth.js?v=3.3.50"></script><script src="js/pmo-layout.js?v=3.3.50"></script></body></html>

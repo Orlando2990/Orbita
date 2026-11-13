@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vista previa del Sprint | ÓRBITA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#fff;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;color:#0f172a}button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+#sprint-preview-root{padding:24px}.preview-kpi{border-radius:13px;border:1px solid #e9edf3;min-height:91px;padding:15px 15px 12px}.preview-kpi-label{font-size:10px;font-weight:800;text-transform:uppercase}.preview-kpi-value{font-size:22px;font-weight:900;line-height:1.5}.preview-kpi-note{font-size:10px}.preview-panel{border:1px solid #dce5ef;border-radius:14px;overflow:hidden;background:white}.preview-panel-header{padding:17px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0}.preview-panel-header h2{font-weight:800;font-size:14px;margin:0}.preview-panel-header p{font-size:11px;color:#64748b;margin:4px 0 0}.preview-stage{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:750;transition:background .12s}.preview-stage:hover{filter:brightness(.98)}.preview-stage:focus-visible{outline:3px solid #93c5fd}.preview-row{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #f1f5f9}.preview-row:last-child{border-bottom:0}.preview-id{font-size:12px;font-weight:850;color:#1d4ed8}.preview-name{font-size:13px;font-weight:750;color:#0f172a;margin:3px 0}.preview-sub{font-size:11px;color:#94a3b8}.preview-pill{font-size:10px;font-weight:800;padding:6px 10px;border-radius:9px;background:#f1f5f9;color:#64748b;white-space:nowrap}.preview-flag{font-size:10px;font-weight:750;padding:4px 7px;border-radius:9px}.preview-message{padding:24px;color:#64748b;text-align:center;font-size:13px}.preview-stage.active{outline:2px solid #cbd5e1}#sprint-preview-title{display:none}
+@media(max-width:760px){#sprint-preview-root{padding:14px}.preview-row{align-items:flex-start}.preview-pill{white-space:normal}.preview-panel-header{padding:13px 15px}.preview-row{padding:12px 15px}}
+@media print{#sprint-preview-root{padding:0}button{print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<main id="sprint-preview-root">
+ <div id="sprint-preview-loading" class="preview-message" role="status">Consultando Sprint...</div>
+ <div id="sprint-preview-content" hidden>
+  <section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3" id="sprint-preview-kpis" aria-label="Indicadores del Sprint"></section>
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-5 mt-6">
+   <section class="preview-panel lg:col-span-2" aria-labelledby="sprint-preview-result-title">
+    <header class="preview-panel-header"><h2 id="sprint-preview-result-title">Resultado del Sprint</h2><p id="sprint-preview-result-subtitle">Estatus del Sprint.</p></header>
+    <div class="p-5 space-y-2.5" id="sprint-preview-stages"></div>
+   </section>
+   <section class="preview-panel lg:col-span-3" aria-labelledby="sprint-preview-list-title">
+    <header class="preview-panel-header flex items-center justify-between gap-3"><div><h2 id="sprint-preview-list-title">Todos los requerimientos</h2><p id="sprint-preview-list-subtitle">Requerimientos del Sprint.</p></div><span id="sprint-preview-count" class="bg-slate-100 rounded-full px-3 py-1 text-xs font-bold">0 RQM</span></header>
+    <div id="sprint-preview-list" role="region" aria-live="polite"></div>
+   </section>
+  </div>
+ </div>
+</main>
+<script src="js/pmo-auth.js?v=3.3.53"></script>
+<script src="js/orbita-summary.js?v=3.3.53"></script>
+<script src="js/orbita-sprint-preview.js?v=3.3.53"></script>
+</body></html>

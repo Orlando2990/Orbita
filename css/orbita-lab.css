@@ -1,0 +1,45 @@
+/* ÓRBITA 3.3.52 — diseño de laboratorio homologado.
+   Tokenizado y estrictamente visual: la lógica reside en los módulos existentes. */
+:root{--pmo-sidebar:252px;--pmo-topbar:80px;--orbita-lab-bg:#f4f7fc;--orbita-lab-navy:#0b1932;--orbita-lab-ink:#1a2f4f;--orbita-lab-blue:#2963ed;--orbita-lab-muted:#71839e;--orbita-lab-border:#e0e7f1;--orbita-lab-radius:12px}
+html{font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif}
+body,body.pmo-shell-enabled{background:var(--orbita-lab-bg)!important;color:var(--orbita-lab-ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif!important;font-size:13px!important}
+.pmo-sidebar{background:#0b1932!important;padding:28px 17px 20px!important;width:var(--pmo-sidebar)!important;border:0!important}
+.pmo-side-brand{padding:0 9px 31px!important}.pmo-side-logo{width:37px;height:37px}.pmo-side-brand strong{font-size:22px;font-weight:800;letter-spacing:.3px}.pmo-side-brand small{font-size:10px;font-weight:450;letter-spacing:.1px;color:#91a9cd}
+.pmo-side-group{margin-bottom:21px}.pmo-side-label{font-size:10px;letter-spacing:1.3px;color:#8298b9;font-weight:600;margin-bottom:12px}.pmo-side-link{min-height:47px!important;border-radius:9px!important;font-size:13px!important;font-weight:500!important;color:#b5c3db!important;padding:0 13px!important}.pmo-side-link.active{background:#213b61!important;color:#fff!important;box-shadow:inset 3px 0 #4cafff!important;font-weight:650!important}.pmo-side-link svg{width:18px;height:18px}.pmo-side-account{border-top:1px solid #28405e!important}
+.pmo-topbar{height:var(--pmo-topbar)!important;background:#fff!important;border-bottom:1px solid var(--orbita-lab-border)!important;padding:0 34px!important;box-shadow:none!important}
+.pmo-top-title{font-size:13px;gap:18px!important;white-space:nowrap;min-width:0}.orbita-crumb-home{color:#8090a9;text-decoration:none;font-size:13px;font-weight:500}.orbita-crumb-home:hover{color:var(--orbita-lab-blue)}.orbita-crumb-separator{color:#c1cadd;font-size:18px}.orbita-crumb-current{color:#1d314f;font-weight:650;overflow:hidden;text-overflow:ellipsis}
+.pmo-notice-bell{width:38px;height:38px;background:#fff!important;border:1px solid #e0e7f1;border-radius:9px;color:#214b95}
+body.pmo-shell-enabled>main,body.pmo-shell-enabled>main:not(.orbita-home){max-width:1500px!important;padding:30px 34px 48px!important;margin:0 auto!important}
+body.pmo-shell-enabled>main.orbita-home{max-width:1500px!important;padding:30px 34px 48px!important}
+.orbita-lab-page-heading,.orbita-home .oh-page-heading{min-height:100px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:18px!important;margin:0 0 20px!important;padding:0!important}
+.orbita-lab-page-heading h1,.orbita-home .oh-page-heading h1{font-size:30px!important;font-weight:750!important;line-height:1.15!important;letter-spacing:-1px!important;color:#1a2f4f!important;margin:0!important}
+.orbita-lab-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;min-height:42px}
+.orbita-lab-actions>*{position:static!important;transform:none!important;flex-shrink:0}
+.orbita-lab-actions :is(button,.pmo-hero-primary,.pmo-hero-primary-emphasis){min-height:42px!important;padding:0 17px!important;border-radius:8px!important;box-shadow:none!important;background:#2963ed!important;color:white!important;border:1px solid #2963ed!important;font-size:12px!important;font-weight:650!important}
+.orbita-lab-actions button:hover{background:#2054d7!important}
+.orbita-lab-actions select{height:43px!important;min-height:43px!important;border:1px solid #dbe3ef!important;border-radius:8px!important;background:#fff!important;color:#263d5c!important;box-shadow:none!important;font-weight:500!important}
+.orbita-lab-deprecated-hero{display:none!important}
+body.pmo-shell-enabled :is(.pmo-ytd-panel,.pmo-summary-card,.card,.panel,.accordion-card,.oh-card,.pmo-command-main,.pmo-panel-table){border:1px solid var(--orbita-lab-border)!important;border-radius:12px!important;box-shadow:0 4px 14px rgba(20,39,69,.025)!important}
+.pmo-ytd-panel{padding:24px!important;margin-bottom:26px!important;background:#fff!important}.pmo-ytd-panel::before{display:none!important}.pmo-ytd-head{border-bottom:1px solid #ebf0f6!important;padding-bottom:15px!important}.pmo-ytd-title{font-size:22px!important;font-weight:720!important;color:#1b2c49!important}.pmo-ytd-grid{gap:10px!important}.pmo-ytd-item{padding:19px 10px!important;background:#f3f6fc!important;border:0!important;border-radius:8px!important}.pmo-ytd-value{color:#275cb8!important;font-size:29px!important;font-weight:750!important}.pmo-ytd-label{font-size:10px!important;font-weight:600!important;letter-spacing:.15px!important;color:#567093!important}
+body.pmo-shell-enabled :is(.rounded-3xl,.rounded-2xl){border-radius:12px!important}
+body.pmo-shell-enabled :is(.shadow-xl,.shadow-lg,.shadow-2xl){box-shadow:0 6px 18px #162f4c0b!important}
+body.pmo-shell-enabled :is(.font-black,.font-extrabold){font-weight:700!important}
+body.pmo-shell-enabled :is(h2,h3,h4){letter-spacing:-.025em}
+body.pmo-shell-enabled :is(.pmo-summary-value,.stat-number){color:#275cb8}
+body.pmo-shell-enabled :is(.field,.field-input,.s-input,input:not([type=radio]):not([type=checkbox]):not([type=file]):not([type=hidden]),select,textarea){font-family:inherit!important;border-radius:8px!important}
+body.pmo-shell-enabled :is(button,.btn,.icon-btn,.pmo-secondary-action){font-family:inherit!important}
+/* El banner de bienvenida y el resumen ejecutivo sí mantienen el azul corporativo. */
+.orbita-home .oh-hero{background:linear-gradient(110deg,#12294b,#19427c)!important;border:0!important;border-radius:12px!important;box-shadow:none!important;min-height:238px!important;padding:30px 34px!important}
+.orbita-home .oh-hero h2{font-size:29px!important;font-weight:760!important;color:white!important}
+.orbita-home .oh-hero p{font-size:13px!important;color:#d2dff1!important}
+.orbita-home .oh-page-heading .oh-eyebrow,.orbita-home .oh-page-heading p,.orbita-home #oh-updated{display:none!important}
+.orbita-home .oh-grid{gap:20px;margin-top:22px}.orbita-home .oh-card{padding:24px!important}.orbita-home .oh-metric{background:#f3f6fc;border-radius:8px}.orbita-home .oh-notice{border-radius:12px}
+/* Roadmap: sin franja azul en contenedor; el estado por etapa permanece. */
+#reporte-mapa-requerimientos:before{display:none!important}
+#reporte-mapa-requerimientos{border-radius:12px!important;box-shadow:0 4px 14px #14274508!important;background:#fff!important}
+#reporte-mapa-requerimientos>div:first-child{padding-top:0!important}
+/* Modal del sprint conserva tabla, métricas y comportamiento. */
+.oh-sprint-dialog{border-radius:14px!important}
+@media(max-width:900px){body.pmo-shell-enabled>main,body.pmo-shell-enabled>main:not(.orbita-home),body.pmo-shell-enabled>main.orbita-home{padding:22px 18px 35px!important}.pmo-topbar{padding:0 18px!important}.orbita-lab-page-heading,.orbita-home .oh-page-heading{min-height:78px!important}.orbita-lab-page-heading h1,.orbita-home .oh-page-heading h1{font-size:25px!important}.orbita-lab-actions{justify-content:flex-start;width:100%}.orbita-lab-page-heading{flex-wrap:wrap}.oh-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:700px){.pmo-sidebar{width:var(--pmo-sidebar)!important}.pmo-topbar{left:0!important}.orbita-crumb-home{display:none}.orbita-crumb-separator{display:none}.orbita-lab-page-heading{min-height:64px!important}.orbita-home .oh-hero{padding:23px!important}}
+@media print{.orbita-lab-page-heading,.pmo-sidebar,.pmo-topbar{display:none!important}body.pmo-shell-enabled>main{padding:0!important}}

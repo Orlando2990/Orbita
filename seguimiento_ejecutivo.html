@@ -264,6 +264,8 @@
 .pmo-copiando-grafica #reporte-avance-sprint>div:first-child,.pmo-copiando-grafica #reporte-distribucion-portafolio>div:first-child{display:none!important}
 .pmo-copiando-grafica #reporte-avance-sprint>div.p-6,.pmo-copiando-grafica #reporte-distribucion-portafolio>div.p-6{padding:18px!important}
 </style>
+<link rel="stylesheet" href="css/orbita-design.css?v=3.3.56">
+<link rel="stylesheet" href="css/orbita-lab.css?v=3.3.52">
 </head>
 
 <body class="bg-slate-50/50 font-sans text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
@@ -282,17 +284,17 @@
 
                 <div class="flex flex-col sm:flex-row gap-3">
                     <select id="seguimiento-filtro-sprint" onchange="filtrarSeguimientoEjecutivo()"
-                        class="pmo-hero-select bg-blue-600 hover:bg-blue-500 border border-blue-400/70 text-white rounded-xl px-4 py-2.5 text-sm font-black outline-none shadow-lg transition">
+                        class="pmo-hero-select bg-blue-600 hover:bg-blue-500 border border-blue-400/70 text-white rounded-xl px-4 py-2.5 text-sm font-normal outline-none shadow-lg transition">
                         <option class="text-slate-800" value="">Todos los sprints</option>
                     </select>
 
                     <select id="seguimiento-filtro-estatus" onchange="filtrarSeguimientoEjecutivo()"
-                        class="pmo-hero-select bg-blue-600 hover:bg-blue-500 border border-blue-400/70 text-white rounded-xl px-4 py-2.5 text-sm font-black outline-none shadow-lg transition">
+                        class="pmo-hero-select bg-blue-600 hover:bg-blue-500 border border-blue-400/70 text-white rounded-xl px-4 py-2.5 text-sm font-normal outline-none shadow-lg transition">
                         <option class="text-slate-800" value="">Todos los estatus</option>
                     </select>
 
                     <select id="seguimiento-filtro-sistema" onchange="filtrarSeguimientoEjecutivo()"
-                        class="pmo-hero-select bg-blue-600 hover:bg-blue-500 border border-blue-400/70 text-white rounded-xl px-4 py-2.5 text-sm font-black outline-none shadow-lg transition">
+                        class="pmo-hero-select bg-blue-600 hover:bg-blue-500 border border-blue-400/70 text-white rounded-xl px-4 py-2.5 text-sm font-normal outline-none shadow-lg transition">
                         <option class="text-slate-800" value="">Todos los sistemas</option>
                     </select>
                 </div>
@@ -302,7 +304,7 @@
         <section id="seguimiento-kpis" class="pmo-ytd-panel" aria-label="Resumen ejecutivo YTD"></section>
 
         <section class="space-y-5">
-            <div id="reporte-mapa-requerimientos" class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+            <div id="reporte-mapa-requerimientos" data-roadmap-view="tiles" class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start mb-5">
                     <div class="lg:pt-1">
                         <h3 class="text-lg font-black text-slate-900">Seguimiento semanal de requerimientos</h3>
@@ -329,13 +331,6 @@
                             <span id="seguimiento-total-visible" class="text-xs font-black bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full">0 visibles</span>
                         </div>
                     </div>
-                </div>
-
-                <div class="pmo-view-switch no-export" role="group" aria-label="Elegir diseño del roadmap">
-                    <span class="pmo-view-switch-label">Vista del roadmap</span>
-                    <button type="button" class="pmo-view-btn" data-roadmap-view="timeline" onclick="cambiarVistaRoadmapPMO('timeline')">1 · Línea de tiempo</button>
-                    <button type="button" class="pmo-view-btn" data-roadmap-view="chevrons" onclick="cambiarVistaRoadmapPMO('chevrons')">2 · Flechas</button>
-                    <button type="button" class="pmo-view-btn" data-roadmap-view="tiles" onclick="cambiarVistaRoadmapPMO('tiles')">3 · Tarjetas</button>
                 </div>
                 <div id="seguimiento-lista" class="space-y-4"></div>
                 <div class="roadmap-executive-footer justify-end"><span id="roadmap-corte-semanal">Seguimiento semanal</span></div>
@@ -451,13 +446,14 @@
     <!-- Modales reutilizables de la Matriz para consultar/modificar un RQM desde Seguimiento -->
     <div id="orbita-modales-requerimientos"></div>
 
-    <script src="js/pmo-auth.js"></script>
+    <script src="js/pmo-auth.js?v=3.3.50"></script>
 
     <script src="js/pmo-metrics.js"></script>
     <script src="js/pmo-panel-html.js"></script>
     <script src="js/pmo-app.js"></script>
-    <script src="js/pmo-layout.js"></script>
+    <script src="js/pmo-layout.js?v=3.3.50"></script>
     <script src="js/pmo-dialogs.js"></script>
+<script src="js/orbita-lab.js?v=3.3.52"></script>
 </body>
 
 </html>

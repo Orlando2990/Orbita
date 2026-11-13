@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sprint del mes | ÓRBITA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="css/pmo-layout.css">
+<style>body{font-family:Inter,system-ui,Arial,sans-serif;background:#f4f7fc;color:#0f172a} .s-card{background:white;border:1px solid #dbe5f1;border-radius:20px;box-shadow:0 6px 22px #0f172a08} .s-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;color:#8091b1}.s-pill{display:inline-flex;align-items:center;font-size:11px;font-weight:800;padding:5px 10px;border-radius:999px;background:#eff6ff;color:#1d4ed8}.s-kpi{padding:18px;border:1px solid #e0e7f2;background:white;border-radius:18px}.s-input{border:1px solid #dbe4ef;border-radius:12px;background:white;padding:10px 12px;font-size:13px;min-width:0}.s-row{background:#fff;border:1px solid #e0e7f2;border-radius:15px;padding:15px;display:grid;grid-template-columns:minmax(0,1fr) 125px 105px;gap:12px;align-items:center}.s-progress{height:7px;background:#e2e8f0;border-radius:99px;overflow:hidden}.s-progress>div{height:100%;background:#2563eb;border-radius:99px}.s-detail{margin-top:12px;padding:14px;background:#f8fafc;border-radius:12px;border:1px solid #edf2fa}.s-state{border-radius:99px;padding:5px 10px;font-size:11px;font-weight:800;display:inline-flex}.s-green{background:#dcfce7;color:#047857}.s-yellow{background:#fef3c7;color:#92400e}.s-blue{background:#dbeafe;color:#1d4ed8}.s-gray{background:#f1f5f9;color:#475569}.s-red{background:#ffe4e6;color:#be123c}@media(max-width:680px){.s-row{grid-template-columns:minmax(0,1fr);}.s-filter{width:100%}}</style>
+<link rel="stylesheet" href="css/orbita-design.css?v=3.3.50">
+<style>
+html.sprint-embed,html.sprint-embed body,html.sprint-embed body.pmo-shell-enabled{padding:0!important;margin:0!important;background:#f7f9fc!important;min-height:100%!important}
+html.sprint-embed .pmo-sidebar,html.sprint-embed .pmo-topbar,html.sprint-embed .pmo-sidebar-backdrop{display:none!important}
+html.sprint-embed main{padding:18px!important;max-width:none!important;margin:0!important}
+html.sprint-embed main>section:first-child{display:none!important}
+html.sprint-embed .s-card{box-shadow:none!important}
+@media(max-width:640px){html.sprint-embed main{padding:10px!important}}
+</style><script>if(new URLSearchParams(location.search).get('modal')==='1')document.documentElement.classList.add('sprint-embed');</script>
+<link rel="stylesheet" href="css/orbita-lab.css?v=3.3.52">
+</head><body data-pmo-module="selfservice" class="min-h-screen">
+<div id="pmo-app-header"></div>
+<main class="pmo-main-content" style="min-height:100vh"><div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+<section class="rounded-3xl bg-gradient-to-r from-slate-950 to-blue-950 text-white p-7 shadow-lg">
+<div class="flex flex-wrap items-center justify-between gap-4"><div><p class="text-xs tracking-widest uppercase text-blue-300 font-black">Consulta general · TI</p><h1 class="text-3xl font-black mt-2">Sprint del mes</h1><p class="text-sm text-slate-300 mt-2">Compromisos y avances de todos los requerimientos del periodo.</p></div><div id="sprint-estado" class="rounded-full bg-blue-600/30 px-4 py-2 font-black text-sm">Consultando...</div></div></section>
+<section class="s-card p-5"><div class="flex flex-wrap gap-4 items-end justify-between"><div><label class="s-label block mb-1" for="sprint-periodo">Periodo</label><select id="sprint-periodo" class="s-input s-filter" aria-label="Seleccionar Sprint"><option value="">Cargando...</option></select></div><div class="flex flex-wrap gap-2 items-end"><label class="text-xs text-slate-500 font-semibold" for="sprint-sistema">Sistema</label><select id="sprint-sistema" class="s-input"><option value="">Todos los sistemas</option></select><button type="button" id="sprint-recargar" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black">Actualizar</button></div></div><p id="sprint-nota" class="text-xs text-slate-500 mt-3" role="status">Los datos del Sprint vigente se consultan en Órbita.</p></section>
+<section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" id="sprint-indicadores" aria-label="Indicadores del Sprint"></section>
+<section class="s-card p-5"><div class="flex flex-wrap justify-between gap-3 items-center mb-5"><div><h2 class="text-lg font-black">Requerimientos del Sprint</h2><p class="text-xs text-slate-500">Consulta de solo lectura · todas las áreas solicitantes</p></div><span id="sprint-visible" class="s-pill">—</span></div><div class="flex flex-wrap gap-3 mb-5"><input id="sprint-buscar" class="s-input flex-1 min-w-[180px]" placeholder="Buscar RQM o requerimiento" aria-label="Buscar requerimiento"><select id="sprint-tipo" class="s-input"><option value="">Todos los orígenes</option><option value="planeado">Planeados</option><option value="arrastre">Arrastres</option><option value="urgente">Fuera de planeación</option></select><select id="sprint-etapa" class="s-input"><option value="">Todas las etapas</option><option>BACKLOG</option><option>ANÁLISIS</option><option>DESARROLLO</option><option>QA</option><option>UAT</option><option>LIBERADO</option></select></div><div id="sprint-resultados" class="space-y-3"><p class="text-slate-500 text-sm">Cargando...</p></div></section>
+</div></main>
+<script src="js/pmo-auth.js?v=3.3.50"></script><script src="js/pmo-layout.js?v=3.3.50"></script><script src="js/orbita-summary.js?v=3.3.50"></script>
+<script src="js/sprint-mes.js?v=3.3.50"></script><script src="js/orbita-lab.js?v=3.3.52"></script>
+</body></html>

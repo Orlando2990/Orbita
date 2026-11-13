@@ -816,25 +816,20 @@ async function guardarSolicitud(ev){
 }
 
 async function cargarMisSolicitudes(){
-  let query = _supabase
-    .from('rqm_control_requerimientos')
-    .select('*')
-    .order('created_at',{ascending:false})
-    .order('fecha_asignacion',{ascending:false});
-  if(usuarioActual?.id) query = query.eq('creado_por', usuarioActual.id);
-  query = query.eq('origen_registro', 'SELF_SERVICE');
-  const { data, error } = await query;
-  if(error){ alert('No se pudieron cargar tus solicitudes: ' + error.message); return; }
+  let data;
+  try {
+    data = await window.OrbitaSummary.allRows(() => _supabase
+      .from('rqm_control_requerimientos').select('*',{count:'exact'})
+      .eq('creado_por',usuarioActual.id).eq('origen_registro','SELF_SERVICE')
+      .order('created_at',{ascending:false}).order('fecha_asignacion',{ascending:false}).order('id'));
+  } catch(error){ alert('No se pudieron cargar tus solicitudes: ' + error.message); return; }
   misSolicitudes = data || [];
   renderMisSolicitudes();
   renderKPIs();
 }
 
 function renderKPIs(){
-  const total = misSolicitudes.length;
-  const revision = misSolicitudes.filter(r => ['REGISTRADO','NUEVO','ENVIADA'].includes(normalizar(r.estatus))).length;
-  const aprobadas = misSolicitudes.filter(r => normalizar(r.estatus) === 'CONVERTIDO A PMO').length;
-  const ajuste = misSolicitudes.filter(r => normalizar(r.estatus).includes('AJUSTE')).length;
+  const {total,revision,aprobadas,ajuste}=window.OrbitaSummary.requests(misSolicitudes);
   const indicadores = [
     ['MIS SOLICITUDES', total],
     ['EN REVISIÓN DEL ADMINISTRADOR', revision],
@@ -1073,5 +1068,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   await actualizarFolioPreview();
   await cargarMisSolicitudes();
   document.getElementById('mis-solicitudes')?.classList.add('collapsed');
+  // V3.3.49: el acceso desde Inicio usa el formulario real, una vez cargado.
+  if(new URLSearchParams(location.search).get('accion')==='nueva' && window.PMOAuth?.canManage?.('selfservice')){
+    togglePanel('formulario-solicitud',true);
+    document.querySelector('#form-self-service input:not([type=hidden]):not([readonly]):not([disabled]), #form-self-service select')?.focus({preventScroll:true});
+  } else if(location.hash==='#mis-solicitudes') togglePanel('mis-solicitudes',true);
   lucide.createIcons();
 });

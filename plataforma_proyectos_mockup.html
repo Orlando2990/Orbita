@@ -73,7 +73,9 @@
 .orbita-project-detail .detail-tile p{color:#172b4a;font-size:13px;line-height:1.55;margin:0;overflow-wrap:anywhere}
 .orbita-project-detail #d-body{padding:18px 24px 24px}
 @media(max-width:640px){.orbita-project-detail .project-detail-sheet{padding:12px}.orbita-project-detail #d-body{padding:12px}.orbita-project-detail .detail-tile{padding:10px 12px}}
-</style></head>
+</style><link rel="stylesheet" href="css/orbita-design.css?v=3.3.50">
+<link rel="stylesheet" href="css/orbita-lab.css?v=3.3.52">
+</head>
 <body class="bg-slate-50/60 text-slate-800 antialiased"><div id="pmo-app-header" data-pmo-module="proyectos"></div><main class="max-w-[1500px] mx-auto px-6 py-8 space-y-6">
 <section class="relative overflow-hidden rounded-3xl bg-slate-950 p-7 text-white shadow-xl"><div class="absolute -right-16 -top-20 w-72 h-72 rounded-full bg-blue-500/20 blur-3xl"></div><div class="relative z-10"><p class="text-[10px] font-black uppercase tracking-[.24em] text-blue-300"></p><h1 class="text-3xl md:text-4xl font-black tracking-tight mt-2">Portafolio de Proyectos</h1><p class="text-slate-300 mt-2 max-w-3xl"></p></div></section>
 <section class="bg-white rounded-3xl border border-slate-100 shadow-sm p-4"><div class="flex items-center justify-between gap-3 mb-3"><div><p class="text-[10px] uppercase tracking-widest font-black text-slate-400">Línea de seguimiento</p><p class="text-sm text-slate-500 mt-1"></p></div><span class="pill bg-blue-50 text-blue-700"></span></div><div id="tabs" class="flex gap-2 overflow-x-auto pb-1"></div></section>
@@ -106,7 +108,7 @@ function renderTabs(){const el=document.getElementById('tabs');el.innerHTML=['TO
 function selectPortfolio(k){current=k;document.getElementById('q').value='';renderAll()}
 function rows(){if(current==='TODOS')return Object.entries(PORTFOLIOS).flatMap(([portfolio,p])=>(p.rows||[]).map(r=>({...r,__portfolio:portfolio})));return PORTFOLIOS[current].rows||[]} function renderKpis(){const d=rows(),withJ=d.filter(hasJira),released=d.filter(r=>isReleased(stageOf(r))),stopped=d.filter(r=>isStopped(stageOf(r))),attention=d.filter(needsAttention),pct=d.length?Math.round(withJ.length/d.length*100):0;
  const items=[['Registros',d.length],['Con JIRA',withJ.length],['Liberados',released.length],['Detenidos',stopped.length],['Atención',attention.length],['Cobertura JIRA',pct+'%']];
- document.getElementById('kpis').innerHTML=`<h2 class="text-xl font-black text-slate-950">Resumen de proyectos</h2><div class="proj-overview-rule"></div><div class="proj-overview-grid">${items.map(x=>`<div class="proj-overview-item"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join('')}</div>`;
+ document.getElementById('kpis').innerHTML=`<h2 class="text-xl font-black text-slate-950">Resumen de proyectos</h2><div class="proj-overview-grid">${items.map(x=>`<div class="proj-overview-item pmo-unified-tile"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join('')}</div>`;
 }
 function normalizeStage(raw){let v=String(raw||'').toLowerCase().trim();if(!v||v==='sin estatus')return 'Sin estatus';if(/deten/.test(v))return 'Detenido';if(/liberad|producci[oó]n|concluid/.test(v))return 'Liberado';if(/testing|prueba|q&a|qa|uat|pte/.test(v))return 'Pruebas';if(/desarrollo|dev|f&f/.test(v))return 'Desarrollo';if(/an[aá]lisis|viabilidad|definici[oó]n|diseño/.test(v))return 'Análisis / Diseño';if(/backlog|iniciativa|pendiente/.test(v))return 'Backlog / Iniciativa';return 'Otros'}
 const projectCharts={};
@@ -306,4 +308,5 @@ async function loadFromSupabase(){
     PORTFOLIOS=fresh;return true;
   }catch(e){console.warn('Plataforma de Proyectos: usando datos demo locales hasta ejecutar SQL V3.2.87.',e);return false;}
 }
-document.addEventListener('DOMContentLoaded',async()=>{renderAll();await loadFromSupabase();renderAll();});</script><script src="js/pmo-dialogs.js"></script><script src="js/pmo-auth.js"></script><script src="js/pmo-layout.js"></script></body></html>
+document.addEventListener('DOMContentLoaded',async()=>{renderAll();await loadFromSupabase();renderAll();});</script><script src="js/pmo-dialogs.js"></script><script src="js/pmo-auth.js?v=3.3.50"></script><script src="js/pmo-layout.js?v=3.3.50"></script><script src="js/orbita-lab.js?v=3.3.52"></script>
+</body></html>
